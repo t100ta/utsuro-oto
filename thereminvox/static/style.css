@@ -1,0 +1,120 @@
+/* ThereminVox dashboard styles */
+:root {
+  --bg:     #0d0d1a;
+  --card:   #141428;
+  --border: #2a2a4a;
+  --accent: #64c8ff;
+  --text:   #e0e0f0;
+  --muted:  #6060a0;
+  --ok:     #4caf50;
+  --err:    #f44336;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  font-family: "Segoe UI", system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  margin: 0;
+  padding: 1rem;
+  min-height: 100vh;
+}
+
+h1 { font-size: 1.8rem; margin: 0 0 0.2rem; color: var(--accent); }
+.subtitle { color: var(--muted); margin: 0 0 1rem; font-size: 0.9rem; }
+
+/* Banner */
+.banner {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+.banner.ok    { background: #1b3b1f; border-left: 4px solid var(--ok); }
+.banner.info  { background: #1a2b3a; border-left: 4px solid var(--accent); }
+.banner.idle  { background: #1f1f2e; border-left: 4px solid var(--muted); }
+.banner.error { background: #3a1a1a; border-left: 4px solid var(--err); }
+
+/* Cards */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+.card h2 {
+  font-size: 1rem;
+  margin: 0 0 0.75rem;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+/* Responsive 3-column grid */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+/* Camera feed */
+#camera-card img {
+  width: 100%;
+  height: auto;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  display: block;
+}
+.hint { font-size: 0.75rem; color: var(--muted); margin: 0.4rem 0 0; }
+
+/* Live readout */
+.readout { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 1rem; }
+.readout-row { display: flex; justify-content: space-between; align-items: baseline; }
+.readout-row .label { color: var(--muted); font-size: 0.8rem; }
+.readout-row .value { font-family: monospace; font-size: 1rem; }
+.readout-row .value.large { font-size: 2rem; font-weight: 700; color: var(--accent); }
+
+/* XY canvas */
+#xy-canvas-wrap { display: flex; justify-content: center; }
+#xy-canvas { border-radius: 6px; border: 1px solid var(--border); }
+
+/* Config */
+label {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin: 0.6rem 0 0.2rem;
+}
+select {
+  width: 100%;
+  background: #1e1e38;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 0.4rem 0.6rem;
+  font-size: 0.9rem;
+}
+button#apply-btn {
+  margin-top: 1rem;
+  width: 100%;
+  padding: 0.6rem;
+  background: var(--accent);
+  color: #000;
+  border: none;
+  border-radius: 6px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+button#apply-btn:hover { opacity: 0.85; }
+#config-status { font-size: 0.8rem; color: var(--ok); margin-top: 0.4rem; min-height: 1.2em; }
+
+/* Playing guide */
+.guide ul { margin: 0; padding-left: 1.2rem; }
+.guide li { margin-bottom: 0.4rem; font-size: 0.9rem; color: var(--muted); }
+.guide li strong { color: var(--text); }

@@ -1,0 +1,5 @@
+__pycache__/
+*.egg-info/
+build/
+# Runtime-generated config — not tracked; defaults are in config.py
+thereminvox/config.json

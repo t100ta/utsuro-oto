@@ -1,0 +1,33 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+
+[project]
+name = "thereminvox"
+version = "0.1.0"
+description = "Play Reachy Mini like a theremin — hand position controls pitch and volume via camera tracking"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "reachy-mini",
+    "reachy-mini-toolbox[vision]>=1.1.2",
+    "scamp",
+    "scipy",
+    "markdown",
+    "pyFluidSynth",
+]
+keywords = ["reachy-mini-app"]
+
+[project.entry-points."reachy_mini_apps"]
+thereminvox = "thereminvox.main:Thereminvox"
+
+[tool.setuptools]
+package-dir = { "" = "." }
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["."]
+
+[tool.setuptools.package-data]
+thereminvox = ["**/*"] # Also include all non-.py files

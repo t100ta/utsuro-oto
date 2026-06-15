@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>ThereminVox — Reachy Mini Hand Theremin</title>
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <h1>🎵 ThereminVox</h1>
+  <p class="subtitle">Hand tracking theremin for Reachy Mini</p>
+
+  <!-- Status banner -->
+  <div id="status-banner" class="banner"></div>
+
+  <div class="grid">
+
+    <!-- Camera feed -->
+    <div class="card" id="camera-card">
+      <h2>Camera</h2>
+      <img id="camera-feed" src="/video_feed" alt="Camera feed" width="320" height="180">
+      <p class="hint">Palm (red) = pitch/volume anchor · Index tip (green) = orientation</p>
+    </div>
+
+    <!-- Live readout -->
+    <div class="card">
+      <h2>Live</h2>
+      <div class="readout">
+        <div class="readout-row">
+          <span class="label">Note</span>
+          <span class="value large" id="note-name">--</span>
+        </div>
+        <div class="readout-row">
+          <span class="label">MIDI</span>
+          <span class="value" id="note-midi">--</span>
+        </div>
+        <div class="readout-row">
+          <span class="label">Volume</span>
+          <span class="value" id="amplitude">--</span>
+        </div>
+        <div class="readout-row">
+          <span class="label">Hand X</span>
+          <span class="value" id="hand-x">--</span>
+        </div>
+        <div class="readout-row">
+          <span class="label">Hand Y</span>
+          <span class="value" id="hand-y">--</span>
+        </div>
+      </div>
+      <!-- XY position indicator -->
+      <div id="xy-canvas-wrap">
+        <canvas id="xy-canvas" width="200" height="200"></canvas>
+      </div>
+    </div>
+
+    <!-- Configuration -->
+    <div class="card">
+      <h2>Config</h2>
+      <label for="scale-select">Scale</label>
+      <select id="scale-select"></select>
+
+      <label for="instr-select">Instrument</label>
+      <select id="instr-select"></select>
+
+      <button id="apply-btn">Apply</button>
+      <div id="config-status"></div>
+    </div>
+
+  </div>
+
+  <!-- Mapping guide -->
+  <div class="card guide">
+    <h2>How to play</h2>
+    <ul>
+      <li><strong>Move hand left/right</strong> — changes pitch (right = higher)</li>
+      <li><strong>Move hand up/down</strong> — changes volume (up = louder)</li>
+      <li>Keep hand in camera view; disappearing hand = silence</li>
+    </ul>
+  </div>
+
+  <script src="/static/main.js"></script>
+</body>
+</html>
