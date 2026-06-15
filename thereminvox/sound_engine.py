@@ -70,6 +70,7 @@ class SoundEngine:
             pitch:      MIDI note number (48–84 typical).
             amplitude:  Volume in [0.0, 1.0].
             instrument: scamp instrument name (GM preset string).
+
         """
         if self._session is None:
             return

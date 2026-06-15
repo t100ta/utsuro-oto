@@ -1,0 +1,42 @@
+[tools]
+# reachy-mini requires >=3.10; use 3.11 to match typical Wireless CM4 deployments.
+# Change to "3.10" or "3.12" if needed.
+python = "3.11"
+uv = "latest"
+
+# ── Common tasks ─────────────────────────────────────────────────────
+[tasks.install]
+description = "Install runtime + dev dependencies via uv"
+run = "uv sync --dev"
+
+[tasks.test]
+description = "Run unit tests (no hardware required)"
+run = "uv run pytest"
+
+[tasks.lint]
+description = "Lint with ruff"
+run = "uv run ruff check ."
+
+[tasks.format]
+description = "Auto-format with ruff"
+run = "uv run ruff format ."
+
+[tasks.format-check]
+description = "Check formatting without modifying files"
+run = "uv run ruff format --check ."
+
+[tasks.typecheck]
+description = "Type-check with mypy"
+run = "uv run mypy thereminvox"
+
+[tasks.check]
+description = "Run lint + typecheck + tests"
+run = ["uv run ruff check .", "uv run mypy thereminvox", "uv run pytest"]
+
+[tasks.app]
+description = "Launch ThereminVox (connects to Reachy Mini on the network)"
+run = "uv run python main.py"
+
+[tasks.app-check]
+description = "Validate app structure for Reachy Mini dashboard"
+run = "reachy-mini-app-assistant check ."

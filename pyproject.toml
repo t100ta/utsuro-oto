@@ -31,3 +31,51 @@ where = ["."]
 
 [tool.setuptools.package-data]
 thereminvox = ["**/*"] # Also include all non-.py files
+
+# ── Development dependencies (uv-native; invisible to robot installer) ──
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+    "ruff==0.12.0",
+    "mypy==1.18.2",
+]
+
+# ── Test runner ──────────────────────────────────────────────────────
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+# ── Linter & formatter ───────────────────────────────────────────────
+[tool.ruff]
+line-length = 119
+exclude = [".venv", "build", "**/__pycache__", "*.egg-info", ".mypy_cache", ".pytest_cache"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "C4", "D"]
+ignore = [
+    "E501",   # line length — handled by formatter
+    "D100",   # missing module-level docstring (some helper modules)
+    "D101",   # missing docstring in public class
+    "D102",   # missing docstring in public method
+    "D103",   # missing docstring in public function
+    "D104",   # missing docstring in public package
+    "D107",   # missing docstring in __init__ (class docstring covers it)
+    "D203",   # one-blank-line-before-class (conflicts with D211)
+    "D213",   # summary on second line (conflicts with D212)
+    "D401",   # first line imperative mood (too strict for data descriptions)
+    "D205",   # blank line between summary and description
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["D"]  # no docstrings required in test files
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+# ── Type checker ─────────────────────────────────────────────────────
+[tool.mypy]
+python_version = "3.11"
+files = ["thereminvox"]
+ignore_missing_imports = true   # cv2/mediapipe/scamp/fluidsynth have no stubs

@@ -3,3 +3,10 @@ __pycache__/
 build/
 # Runtime-generated config — not tracked; defaults are in config.py
 thereminvox/config.json
+
+# Development tooling
+.venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.mise.local.toml   # local overrides (not shared)

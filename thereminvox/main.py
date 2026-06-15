@@ -34,7 +34,6 @@ from thereminvox.config import (
     set_instrument_idx,
     set_scale,
 )
-from thereminvox.fluidsynth_check import probe_fluidsynth
 from thereminvox.hand_tracker import HandTracker
 from thereminvox.mapping import (
     EMAFilter,
@@ -217,6 +216,7 @@ class Thereminvox(ReachyMiniApp):
         euler_rot = np.array([0.0, 0.0, 0.0])   # roll, pitch, yaw
         head_pose = np.eye(4)
         prev_antennas = np.array([0.0, 0.0])
+        antennas: list[float] = [0.0, 0.0]      # always list[float] (allow_multiturn return type)
         is_idle = True
 
         print("[Audio/Motion] Starting 50 Hz control loop …")
@@ -243,12 +243,12 @@ class Thereminvox(ReachyMiniApp):
 
                 # Gentle return to neutral (5% per tick)
                 euler_rot += np.clip(-euler_rot, -0.05, 0.05)
-                antennas = np.array([0.0, 0.0])
-                antennas = allow_multiturn(list(antennas), list(prev_antennas), ANT_MAX_DELTA)
+                antennas = allow_multiturn([0.0, 0.0], list(prev_antennas), ANT_MAX_DELTA)
 
             else:
                 # ── Active: theremin mapping ───────────────────────
                 is_idle = False
+                assert hand_pos is not None  # guaranteed: idle=False means hand_pos is not None
 
                 # EMA smoothing of raw hand position
                 sx = self._ema_x.update(hand_pos[0])
@@ -303,8 +303,7 @@ class Thereminvox(ReachyMiniApp):
                     [0.0,  np.deg2rad(20),  np.deg2rad(170)],
                 )
 
-                antennas = np.array([0.0, 0.0])
-                antennas = allow_multiturn(list(antennas), list(prev_antennas), ANT_MAX_DELTA)
+                antennas = allow_multiturn([0.0, 0.0], list(prev_antennas), ANT_MAX_DELTA)
 
             # Apply head pose
             head_pose[:3, :3] = R.from_euler("xyz", euler_rot).as_matrix()

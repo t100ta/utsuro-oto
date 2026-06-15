@@ -24,6 +24,7 @@ class HandTracker:
             nb_hands: Maximum number of hands to detect.
             model_complexity: 0 = fast/lightweight (recommended for Wireless CM4),
                               1 = more accurate.
+
         """
         self.hands = mp_hands.Hands(
             static_image_mode=True,
@@ -43,6 +44,7 @@ class HandTracker:
             List of dicts with keys ``palm``, ``index_tip``, ``index_mcp``,
             ``middle``; each value is an (x, y) ndarray in [-1, 1].
             Returns None if no hands found.
+
         """
         img = cv2.flip(img, 1)
         results = self.hands.process(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
