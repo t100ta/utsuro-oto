@@ -148,3 +148,45 @@ class TestSoundEngineHappyPath:
         engine.shutdown()
 
         mock_handle.end.assert_called_once()
+
+    # ── self_test ─────────────────────────────────────────────────────
+
+    def test_self_test_plays_and_ends_note(self, monkeypatch):
+        """self_test() should start a note, sleep, then end it."""
+        import thereminvox.sound_engine as se
+        monkeypatch.setattr(se, "_AUDIO_TEST", True)
+
+        engine, _, mock_part = _make_engine_with_mocks()
+        mock_handle = MagicMock(name="self_test_handle")
+        mock_part.start_note.return_value = mock_handle
+
+        import unittest.mock as um
+        with um.patch("thereminvox.sound_engine.time") as mock_time:
+            engine.self_test()
+
+        mock_part.start_note.assert_called_once_with(60, 0.8)
+        mock_handle.end.assert_called_once()
+        mock_time.sleep.assert_called_once_with(1.5)
+
+    def test_self_test_skipped_when_audio_test_is_false(self, monkeypatch):
+        """self_test() must be a no-op when THEREMINVOX_AUDIO_TEST=0."""
+        import thereminvox.sound_engine as se
+        monkeypatch.setattr(se, "_AUDIO_TEST", False)
+
+        engine, _, mock_part = _make_engine_with_mocks()
+        engine.self_test()
+
+        mock_part.start_note.assert_not_called()
+
+
+class TestSoundEngineNoFluidSynthSelfTest:
+    def test_self_test_no_op_when_fluidsynth_unavailable(self, monkeypatch):
+        """self_test() must not raise when FluidSynth is absent."""
+        import thereminvox.sound_engine as se
+        monkeypatch.setattr(se, "_AUDIO_TEST", True)
+
+        probe_fail = FluidSynthProbeResult(False, "test: no fluidsynth")
+        with patch("thereminvox.sound_engine.probe_fluidsynth", return_value=probe_fail):
+            engine = SoundEngine()
+
+        engine.self_test()  # must not raise

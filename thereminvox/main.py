@@ -342,6 +342,9 @@ class Thereminvox(ReachyMiniApp):
         print(f"  Dashboard:  {self.custom_app_url}")
         print("=" * 60)
 
+        # Play a short tone to confirm audio routing before the main loop starts.
+        self._sound.self_test()
+
         reachy_mini.enable_motors()
         try:
             t_vision = threading.Thread(

@@ -4,7 +4,7 @@ Adapted from RemiFabre/Theremini.
 
 The engine holds a single sustained note that can have its pitch and volume
 changed in real-time without gaps or clicks (using scamp's ``start_note`` /
-``change_note_pitch`` / ``change_note_volume`` API).
+``change_pitch`` / ``change_volume`` API).
 
 Typical usage in a 50 Hz control loop::
 
@@ -13,14 +13,65 @@ Typical usage in a 50 Hz control loop::
         engine.play_or_update(pitch=60, amplitude=0.8, instrument="flute")
     # ... later when hand disappears
         engine.stop_note()
+
+Audio-routing environment variables (set before launching the app)::
+
+    THEREMINVOX_AUDIO_DRIVER   scamp/fluidsynth driver (default: "auto").
+                               On the robot: try "alsa".
+    THEREMINVOX_AUDIO_DEVICE   ALSA device name (default: unset).
+                               On the robot: try "plug:reachymini_audio_sink".
+    THEREMINVOX_SAMPLE_RATE    Override synth sample rate in Hz (default: unset).
+                               On the robot: try "16000" to match the dmix sink.
+    THEREMINVOX_SOUNDFONT      scamp soundfont name or path (default: "default" = Merlin.sf2).
+    THEREMINVOX_AUDIO_TEST     Set to "0" to skip the 1.5 s startup self-test tone (default: "1").
 """
 from __future__ import annotations
 
 import contextlib
 import io
+import os
+import time
 from typing import Any
 
 from thereminvox.fluidsynth_check import FluidSynthProbeResult, probe_fluidsynth
+
+# ── Environment-variable configuration ──────────────────────────────────────
+_AUDIO_DRIVER = os.environ.get("THEREMINVOX_AUDIO_DRIVER", "auto")
+_SOUNDFONT    = os.environ.get("THEREMINVOX_SOUNDFONT",    "default")
+_AUDIO_DEVICE = os.environ.get("THEREMINVOX_AUDIO_DEVICE", "")
+_SAMPLE_RATE  = os.environ.get("THEREMINVOX_SAMPLE_RATE",  "")
+_AUDIO_TEST   = os.environ.get("THEREMINVOX_AUDIO_TEST",   "1") != "0"
+
+
+def _patch_fluidsynth_start() -> None:
+    """Inject THEREMINVOX_AUDIO_DEVICE / THEREMINVOX_SAMPLE_RATE into fluidsynth.Synth.start.
+
+    scamp calls ``self.synth.start(driver=...)`` but never forwards ``device`` or
+    ``sample-rate``.  pyfluidsynth already supports both — scamp just doesn't
+    expose them.  This patch is a strict no-op when neither env var is set.
+    """
+    if not (_AUDIO_DEVICE or _SAMPLE_RATE):
+        return
+    try:
+        import fluidsynth  # type: ignore[import]
+        _orig = fluidsynth.Synth.start
+
+        def _patched(synth_self: Any, driver: str = "alsa", device: str | None = None, **kw: Any) -> Any:
+            if _SAMPLE_RATE:
+                try:
+                    synth_self.setting("synth.sample-rate", float(_SAMPLE_RATE))
+                except Exception:
+                    pass
+            effective_device = device or _AUDIO_DEVICE or None
+            return _orig(synth_self, driver=driver, device=effective_device, **kw)
+
+        fluidsynth.Synth.start = _patched  # type: ignore[method-assign]
+        print(f"[Audio] fluidsynth patched: device={_AUDIO_DEVICE!r} sample_rate={_SAMPLE_RATE!r}")
+    except Exception:
+        pass  # fluidsynth unavailable; probe_fluidsynth() will surface the real error
+
+
+_patch_fluidsynth_start()
 
 
 class SoundEngine:
@@ -40,7 +91,12 @@ class SoundEngine:
             except Exception as exc:
                 self._probe = FluidSynthProbeResult(False, f"scamp import failed: {exc}")
             else:
-                self._session = ScampSession(max_threads=1024)
+                print(f"[Audio] Starting scamp (driver={_AUDIO_DRIVER!r}, soundfont={_SOUNDFONT!r})")
+                self._session = ScampSession(
+                    max_threads=1024,
+                    default_audio_driver=_AUDIO_DRIVER,
+                    default_soundfont=_SOUNDFONT,
+                )
                 # Pre-load the initial instrument to avoid first-note latency.
                 self._get_part(initial_instrument)
 
@@ -53,6 +109,25 @@ class SoundEngine:
     @property
     def error(self) -> str | None:
         return self._probe.error
+
+    def self_test(self) -> None:
+        """Play a 1.5 s tone (C4) at startup to confirm audio routing works.
+
+        Disabled by setting ``THEREMINVOX_AUDIO_TEST=0``.
+        """
+        if not self.ok or not _AUDIO_TEST:
+            return
+        part = self._get_part(self._current_instrument or "flute")
+        if part is None:
+            return
+        print("[Audio] self-test: playing 1.5 s tone (C4) … (THEREMINVOX_AUDIO_TEST=0 to skip)")
+        try:
+            handle = part.start_note(60, 0.8)
+            time.sleep(1.5)
+            handle.end()
+            print("[Audio] self-test: done.")
+        except Exception as exc:
+            print(f"[Audio] self-test failed: {exc}")
 
     def play_or_update(
         self,
@@ -107,10 +182,14 @@ class SoundEngine:
         if self._session is None:
             return None
         if name not in self._parts_cache:
-            # scamp prints info on part creation; suppress it.
+            # Capture scamp's part-creation output and print it so that
+            # soundfont / preset warnings are visible rather than silently dropped.
             buf = io.StringIO()
             with contextlib.redirect_stdout(buf):
                 self._parts_cache[name] = self._session.new_part(name)
+            msg = buf.getvalue().strip()
+            if msg:
+                print(f"[scamp] {msg}")
         return self._parts_cache[name]
 
     def _stop_note(self) -> None:
