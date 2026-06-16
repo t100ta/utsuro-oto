@@ -27,9 +27,10 @@ class HandTracker:
 
         """
         self.hands = mp_hands.Hands(
-            static_image_mode=True,
+            static_image_mode=False,   # video mode: uses tracking between frames (faster, more robust)
             max_num_hands=nb_hands,
             min_detection_confidence=0.5,
+            min_tracking_confidence=0.5,
             model_complexity=model_complexity,
         )
 

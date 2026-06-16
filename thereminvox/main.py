@@ -182,6 +182,10 @@ class Thereminvox(ReachyMiniApp):
         tracker = HandTracker(nb_hands=1, model_complexity=0)
         print("[Vision] Starting camera loop …")
 
+        frame_count = 0
+        hand_count = 0
+        debug_t = time.time()
+
         while not stop_event.is_set():
             frame = reachy_mini.media.get_frame()
             if frame is None:
@@ -191,9 +195,12 @@ class Thereminvox(ReachyMiniApp):
             frame = cv2.resize(frame, (VISION_WIDTH, VISION_HEIGHT))
             hands = tracker.get_hands_positions(frame)
 
+            frame_count += 1
             now = time.time()
+
             with self._lock:
                 if hands:
+                    hand_count += 1
                     palm = np.array(hands[0]["palm"], dtype=float)
                     self._hand_pos = palm
                     self._last_hand_seen = now
@@ -202,6 +209,12 @@ class Thereminvox(ReachyMiniApp):
                     if self._hand_pos is not None:
                         self._hand_pos = self._hand_pos * 0.9
                 self._last_frame = _annotate_frame(frame, hands)
+
+            if now - debug_t >= 5.0:
+                print(f"[Vision] frames={frame_count} hands={hand_count} in last 5s")
+                frame_count = 0
+                hand_count = 0
+                debug_t = now
 
         print("[Vision] Stopped.")
 
@@ -305,10 +318,13 @@ class Thereminvox(ReachyMiniApp):
 
                 antennas = allow_multiturn([0.0, 0.0], list(prev_antennas), ANT_MAX_DELTA)
 
-            # Apply head pose
-            head_pose[:3, :3] = R.from_euler("xyz", euler_rot).as_matrix()
-            reachy_mini.set_target(head=head_pose, antennas=np.array(antennas))
-            prev_antennas = np.array(antennas)
+            # Apply head pose — catch WebSocket errors on shutdown
+            try:
+                head_pose[:3, :3] = R.from_euler("xyz", euler_rot).as_matrix()
+                reachy_mini.set_target(head=head_pose, antennas=np.array(antennas))
+                prev_antennas = np.array(antennas)
+            except Exception:
+                break
 
             elapsed = time.time() - t0
             time.sleep(max(0.0, 1.0 / AUDIO_FREQ_HZ - elapsed))
