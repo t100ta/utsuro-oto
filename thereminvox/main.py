@@ -21,7 +21,7 @@ from typing import Any
 
 import cv2
 import numpy as np
-from fastapi.responses import StreamingResponse
+from fastapi.responses import HTMLResponse, StreamingResponse
 from pydantic import BaseModel
 from reachy_mini import ReachyMini, ReachyMiniApp
 from scipy.spatial.transform import Rotation as R
@@ -44,6 +44,67 @@ from thereminvox.mapping import (
 )
 from thereminvox.sound_engine import SoundEngine
 from thereminvox.utils import allow_multiturn
+
+# ── Dashboard HTML ──────────────────────────────────────────────────
+_DASHBOARD_HTML = """<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width">
+<title>ThereminVox</title>
+<style>
+*{box-sizing:border-box}
+body{font-family:system-ui,sans-serif;background:#1a1a2e;color:#eee;margin:0;padding:16px;max-width:640px}
+h1{color:#7df;margin:0 0 12px;font-size:1.4em}
+.card{background:#16213e;border-radius:8px;padding:12px;margin:8px 0}
+.row{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+button{background:#0f3460;color:#ddd;border:1px solid #234;padding:6px 12px;border-radius:4px;cursor:pointer;font-size:.85em;text-transform:capitalize}
+button:hover{background:#e94560;border-color:#e94560}
+button.on{background:#2a7a5a;border-color:#3ab;color:#fff}
+.note{font-size:1.8em;font-weight:700;color:#7df;min-height:2em;line-height:1.2}
+.sub{font-size:.8em;color:#89a;margin-bottom:4px}
+img{width:100%;border-radius:8px;margin-top:8px}
+</style>
+</head>
+<body>
+<h1>ThereminVox</h1>
+<div class="card">
+  <div class="sub">Now playing</div>
+  <div class="note" id="note">—</div>
+  <div class="sub" id="info">—</div>
+</div>
+<div class="card">
+  <div class="sub">Instrument</div>
+  <div class="row" id="instrs"></div>
+</div>
+<div class="card">
+  <div class="sub">Scale</div>
+  <div class="row" id="scales"></div>
+</div>
+<img src="/video_feed" alt="camera feed">
+<script>
+var cfg={available_instruments:[],available_scales:[],instrument:"",scale:""};
+function post(body){return fetch("/config",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)}).then(function(){return loadCfg();});}
+function mkBtn(text,active,fn){var b=document.createElement("button");b.textContent=text.replace(/_/g," ");if(active)b.className="on";b.onclick=fn;return b;}
+function render(){
+  var ib=document.getElementById("instrs");ib.innerHTML="";
+  cfg.available_instruments.forEach(function(n,i){ib.appendChild(mkBtn(n,n===cfg.instrument,function(){post({instrument_idx:i});}));});
+  var sb=document.getElementById("scales");sb.innerHTML="";
+  cfg.available_scales.forEach(function(n){sb.appendChild(mkBtn(n,n===cfg.scale,function(){post({scale:n});}));});
+}
+function loadCfg(){return fetch("/config").then(function(r){return r.json();}).then(function(c){cfg=c;render();});}
+function poll(){
+  fetch("/status").then(function(r){return r.json();}).then(function(s){
+    document.getElementById("note").textContent=s.playing?(s.pitch_name+" (MIDI "+s.pitch_midi+")"):"—";
+    document.getElementById("info").textContent=s.instrument+" · "+s.scale+" · amp "+((s.amplitude||0).toFixed(2))+" · "+(s.hand_detected?"hand ✓":"no hand");
+    if(s.instrument!==cfg.instrument||s.scale!==cfg.scale){loadCfg();}
+  }).catch(function(){});
+}
+loadCfg();
+setInterval(poll,400);
+</script>
+</body>
+</html>"""
 
 # ── Control constants ────────────────────────────────────────────────
 AUDIO_FREQ_HZ = 50          # control loop frequency
@@ -146,6 +207,10 @@ class Thereminvox(ReachyMiniApp):
                 "available_scales": ALL_SCALES,
                 "available_instruments": get_active_instruments(),
             }
+
+        @self.settings_app.get("/")
+        def get_dashboard() -> HTMLResponse:
+            return HTMLResponse(_DASHBOARD_HTML)
 
     # ── MJPEG helper ────────────────────────────────────────────────
 

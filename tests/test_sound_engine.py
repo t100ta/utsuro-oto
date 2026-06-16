@@ -124,7 +124,7 @@ class TestSoundEngineHappyPath:
     def test_first_play_or_update_starts_note(self):
         engine, mock_synth = _make_engine_with_mocks()
         engine.play_or_update(60, 0.8, "flute")
-        mock_synth.noteon.assert_called_with(CHAN, 60, 100)
+        mock_synth.noteon.assert_called_with(CHAN, 60, 127)
         assert engine._current_pitch == 60
 
     def test_same_pitch_updates_expression_only(self):
@@ -147,7 +147,7 @@ class TestSoundEngineHappyPath:
         engine.play_or_update(62, 0.8, "flute")
 
         mock_synth.noteoff.assert_called_with(CHAN, 60)
-        mock_synth.noteon.assert_called_with(CHAN, 62, 100)
+        mock_synth.noteon.assert_called_with(CHAN, 62, 127)
         assert engine._current_pitch == 62
 
     def test_instrument_change_reprogram_and_retrigger(self):
@@ -161,7 +161,7 @@ class TestSoundEngineHappyPath:
         mock_synth.program_select.assert_called()
         # Old note ended, new note started
         mock_synth.noteoff.assert_called()
-        mock_synth.noteon.assert_called_with(CHAN, 60, 100)
+        mock_synth.noteon.assert_called_with(CHAN, 60, 127)
 
     def test_stop_note_sends_noteoff_and_clears_pitch(self):
         engine, mock_synth = _make_engine_with_mocks()
@@ -242,7 +242,7 @@ class TestSoundEngineHappyPath:
         engine.self_test()
         engine.shutdown()
 
-        mock_synth.noteon.assert_called_with(CHAN, 60, 100)
+        mock_synth.noteon.assert_called_with(CHAN, 60, 127)
         mock_synth.noteoff.assert_called_with(CHAN, 60)
 
     def test_self_test_skipped_when_audio_test_false(self, monkeypatch):

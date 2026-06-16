@@ -24,6 +24,8 @@ Environment variables::
 
     THEREMINVOX_SOUNDFONT   Soundfont name or path (default: "default" = Merlin.sf2
                             bundled with scamp).
+    THEREMINVOX_GAIN        FluidSynth master gain (default: "0.5"; FluidSynth default
+                            is 0.2 which is quiet — increase to 1.0 if still too soft).
     THEREMINVOX_AUDIO_TEST  Set to "0" to skip the 1.5 s startup self-test tone
                             (default: enabled).
 """
@@ -58,6 +60,7 @@ except Exception:
 
 # ── Environment-variable configuration ──────────────────────────────────────
 _SOUNDFONT  = os.environ.get("THEREMINVOX_SOUNDFONT",  "default")
+_GAIN       = float(os.environ.get("THEREMINVOX_GAIN", "0.5"))   # FluidSynth default 0.2 is too quiet
 _AUDIO_TEST = os.environ.get("THEREMINVOX_AUDIO_TEST", "1") != "0"
 
 # Duration of the startup self-test tone in seconds.
@@ -104,10 +107,10 @@ class SoundEngine:
 
         try:
             # Offline render only — start() is intentionally not called.
-            self._synth = fluidsynth.Synth(samplerate=OUTPUT_RATE)
+            self._synth = fluidsynth.Synth(samplerate=OUTPUT_RATE, gain=_GAIN)
             soundfont_path = resolve_soundfont(_SOUNDFONT_KEY)
             self._sfid = self._synth.sfload(soundfont_path)
-            print(f"[Audio] FluidSynth ready — soundfont: {soundfont_path!r}")
+            print(f"[Audio] FluidSynth ready — soundfont: {soundfont_path!r} gain={_GAIN}")
             # Pre-load the initial instrument to avoid first-note latency.
             self._apply_preset(initial_instrument)
         except Exception as exc:
@@ -159,16 +162,12 @@ class SoundEngine:
         except Exception:
             pass
 
-        # start_playing() must come first — it initialises the appsrc element
-        # that set_max_output_buffers() configures.
+        # start_playing() initialises the GStreamer appsrc pipeline.
+        # We do NOT call set_max_output_buffers() — its SDK implementation
+        # hard-codes leaky=drop_old which silently discards queued audio and
+        # causes dropouts. The monotonic-clock pump loop keeps the queue bounded
+        # without needing to drop buffers.
         media.start_playing()
-
-        # Cap the output buffer queue so pump over-runs are absorbed, not delayed.
-        try:
-            media.audio.set_max_output_buffers(4)
-        except Exception:
-            pass
-
         self._media = media
         print("[Audio] media.start_playing() OK — PCM pump starting …")
         self._running = True
@@ -253,16 +252,19 @@ class SoundEngine:
     def _pump_loop(self) -> None:
         """Background thread: pull rendered PCM from FluidSynth → push to SDK.
 
-        Runs at slightly below real-time (95 %) so the buffer stays fed without
-        accumulating unbounded latency. The SDK's leaky appsrc queue (max 4
-        buffers) absorbs any short-term over-runs.
+        Uses a monotonic-clock compensating loop so that processing jitter does
+        not accumulate into audio drift or burst-pushing.  Each iteration waits
+        only for the remaining time in the current chunk window, keeping the push
+        rate at exactly OUTPUT_RATE samples/second on average.
         """
-        sleep_s = PUMP_CHUNK / OUTPUT_RATE * 0.95
+        chunk_s = PUMP_CHUNK / OUTPUT_RATE
+        next_t = time.monotonic() + chunk_s
         while self._running:
+            if self._synth is None or self._media is None:
+                time.sleep(chunk_s)
+                next_t = time.monotonic() + chunk_s
+                continue
             try:
-                if self._synth is None or self._media is None:
-                    time.sleep(sleep_s)
-                    continue
                 with self._synth_lock:
                     # int16 interleaved stereo, shape (2 * PUMP_CHUNK,)
                     s = self._synth.get_samples(PUMP_CHUNK)
@@ -271,7 +273,13 @@ class SoundEngine:
                 self._media.push_audio_sample(pcm)
             except Exception:
                 pass  # absorb transient errors (shutdown races, etc.)
-            time.sleep(sleep_s)
+            next_t += chunk_s
+            sleep_s = next_t - time.monotonic()
+            if sleep_s > 0:
+                time.sleep(sleep_s)
+            elif sleep_s < -chunk_s:
+                # Fell more than one chunk behind; re-anchor to avoid burst-pushing.
+                next_t = time.monotonic() + chunk_s
 
     def _resolve_preset(self, name: str) -> tuple[int, int] | None:
         """Return ``(bank, preset)`` for the given instrument name (cached).
@@ -303,6 +311,7 @@ class SoundEngine:
         bank, preset = bp
         try:
             self._synth.program_select(CHAN, self._sfid, bank, preset)
+            self._synth.cc(CHAN, 7, 127)   # CC 7 = channel volume: keep at max
             self._current_instrument = name
         except Exception as exc:
             print(f"[Audio] program_select failed for {name!r}: {exc}")
@@ -328,7 +337,7 @@ class SoundEngine:
                 except Exception:
                     pass
             try:
-                self._synth.noteon(CHAN, pitch, 100)
+                self._synth.noteon(CHAN, pitch, 127)  # velocity max; CC 11 handles volume
                 self._current_pitch = pitch
             except Exception:
                 pass
