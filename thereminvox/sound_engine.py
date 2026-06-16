@@ -89,9 +89,9 @@ class SoundEngine:
 
         # Same instrument, update in place.
         if pitch != self._current_pitch:
-            self._note_handle.change_note_pitch(pitch)
+            self._note_handle.change_pitch(pitch)
             self._current_pitch = pitch
-        self._note_handle.change_note_volume(amplitude)
+        self._note_handle.change_volume(amplitude)
 
     def stop_note(self) -> None:
         """Silence the current note (call when hand disappears or on shutdown)."""

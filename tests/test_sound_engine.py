@@ -90,11 +90,11 @@ class TestSoundEngineHappyPath:
         # start_note called only once (first call)
         mock_part.start_note.assert_called_once()
         # volume updated on second call
-        mock_handle.change_note_volume.assert_called_with(0.5)
+        mock_handle.change_volume.assert_called_with(0.5)
         # pitch NOT changed (stays same)
-        mock_handle.change_note_pitch.assert_not_called()
+        mock_handle.change_pitch.assert_not_called()
 
-    def test_pitch_change_calls_change_note_pitch(self):
+    def test_pitch_change_calls_change_pitch(self):
         engine, _, mock_part = _make_engine_with_mocks()
         mock_handle = MagicMock(name="note_handle")
         mock_part.start_note.return_value = mock_handle
@@ -102,7 +102,7 @@ class TestSoundEngineHappyPath:
         engine.play_or_update(60, 0.8, "flute")
         engine.play_or_update(62, 0.8, "flute")  # pitch change
 
-        mock_handle.change_note_pitch.assert_called_once_with(62)
+        mock_handle.change_pitch.assert_called_once_with(62)
         assert engine._current_pitch == 62
 
     def test_instrument_change_restarts_note(self):
