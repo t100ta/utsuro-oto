@@ -342,6 +342,11 @@ class Thereminvox(ReachyMiniApp):
         print(f"  Dashboard:  {self.custom_app_url}")
         print("=" * 60)
 
+        # Wire up the SDK media pipeline and start the PCM pump thread.
+        # attach_media must come before self_test so the pump is running when
+        # the test tone is played.
+        self._sound.attach_media(reachy_mini.media)
+
         # Play a short tone to confirm audio routing before the main loop starts.
         self._sound.self_test()
 
@@ -366,7 +371,8 @@ class Thereminvox(ReachyMiniApp):
             t_vision.join(timeout=3.0)
             t_audio.join(timeout=3.0)
         finally:
-            self._sound.stop_note()
+            # shutdown() stops the pump thread and calls media.stop_playing().
+            self._sound.shutdown()
             reachy_mini.disable_motors()
             print("[ThereminVox] Stopped cleanly.")
 

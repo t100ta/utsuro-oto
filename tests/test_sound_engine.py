@@ -1,44 +1,90 @@
-"""Tests for thereminvox.sound_engine — FluidSynth/scamp wrapper.
+"""Tests for thereminvox.sound_engine — offline FluidSynth renderer + SDK pump.
 
-The tests cover two paths:
-- FluidSynth unavailable (the expected state on any CI / dev machine without
-  the system libfluidsynth installed) → engine must be gracefully silent.
-- FluidSynth available (simulated with mocks) → note lifecycle is exercised.
+Architecture under test:
+- FluidSynth renders PCM offline (get_samples, no audio driver opened).
+- A pump thread pushes float32 (N, 2) PCM to reachy_mini.media.push_audio_sample().
+- play_or_update / stop_note / shutdown control the MIDI channel via noteon/noteoff/cc.
+
+Two test scenarios:
+- FluidSynth unavailable (probe returns ok=False) → every method must be a no-op.
+- FluidSynth available (mocked) → full note lifecycle, pump, attach_media.
 """
 
+import threading
 from unittest.mock import MagicMock, patch
 
-from thereminvox.fluidsynth_check import FluidSynthProbeResult
-from thereminvox.sound_engine import SoundEngine
+import numpy as np
 
-# ── Helper: build a mocked SoundEngine with FluidSynth available ─────
+from thereminvox.fluidsynth_check import FluidSynthProbeResult
+from thereminvox.sound_engine import CHAN, SoundEngine
+
+# ── Test helpers ─────────────────────────────────────────────────────────────
+
+def _make_mock_fluidsynth():
+    """Return (mock_fs_module, mock_synth_instance)."""
+    mock_synth = MagicMock(name="synth_instance")
+    # get_samples returns int16 interleaved stereo: shape (2 * PUMP_CHUNK,)
+    mock_synth.get_samples.return_value = np.zeros(2 * 1024, dtype=np.int16)
+
+    mock_fs = MagicMock(name="fluidsynth_module")
+    mock_fs.Synth.return_value = mock_synth
+    return mock_fs, mock_synth
+
+
+def _make_mock_preset(name: str = "Flute Gold", bank: int = 0, preset: int = 73) -> MagicMock:
+    m = MagicMock()
+    m.name = name
+    m.bank = bank
+    m.preset = preset
+    return m
+
 
 def _make_engine_with_mocks(instrument: str = "flute"):
-    """Return (engine, mock_session, mock_part) with scamp fully mocked."""
+    """Return ``(engine, mock_synth)`` with scamp internals fully mocked.
+
+    After this call the module-level patches are no longer active, but:
+    - ``engine._synth`` still references ``mock_synth``.
+    - ``engine._preset_cache`` is pre-populated so ``_resolve_preset`` never
+      calls the real ``get_best_preset_match_for_name``.
+    """
     probe_ok = FluidSynthProbeResult(True, None)
-    mock_part = MagicMock(name="mock_part")
-    mock_session = MagicMock(name="mock_session")
-    mock_session.new_part.return_value = mock_part
+    mock_fs, mock_synth = _make_mock_fluidsynth()
+    mock_preset = _make_mock_preset()
 
     with (
         patch("thereminvox.sound_engine.probe_fluidsynth", return_value=probe_ok),
-        patch("thereminvox.sound_engine.io"),  # silence stdout redirect
-        patch("scamp.Session", return_value=mock_session),
+        patch("thereminvox.sound_engine.fluidsynth", mock_fs),
+        patch("thereminvox.sound_engine.resolve_soundfont", return_value="/fake/Merlin.sf2"),
+        patch(
+            "thereminvox.sound_engine.get_best_preset_match_for_name",
+            return_value=(mock_preset, 0.9),
+        ),
     ):
         engine = SoundEngine(initial_instrument=instrument)
 
-    # Patch the already-created session reference so future calls are tracked
-    engine._session = mock_session
-    engine._parts_cache = {instrument: mock_part}
+    # Patches are gone but the synth object persists; keep preset cache populated
+    # so later calls to _resolve_preset never hit the real scamp function.
+    engine._preset_cache.update({
+        "flute":      (0, 73),
+        "violin":     (0, 40),
+        "choir_aahs": (0, 52),
+    })
+    return engine, mock_synth
 
-    return engine, mock_session, mock_part
+
+def _make_mock_media(rate: int = 16000) -> MagicMock:
+    """Return a mock MediaManager with an `.audio` sub-object."""
+    media = MagicMock(name="media")
+    media.audio = MagicMock(name="media_audio")
+    media.audio.get_output_audio_samplerate.return_value = rate
+    return media
 
 
-# ── FluidSynth unavailable (no-op path) ──────────────────────────────
+# ── FluidSynth unavailable (no-op path) ──────────────────────────────────────
 
 class TestSoundEngineNoFluidSynth:
     def _engine(self) -> SoundEngine:
-        probe_fail = FluidSynthProbeResult(False, "test: libfluidsynth not found")
+        probe_fail = FluidSynthProbeResult(False, "test: bundled fluidsynth not available")
         with patch("thereminvox.sound_engine.probe_fluidsynth", return_value=probe_fail):
             return SoundEngine()
 
@@ -46,147 +92,179 @@ class TestSoundEngineNoFluidSynth:
         assert self._engine().ok is False
 
     def test_error_message_propagated(self):
-        assert "libfluidsynth" in (self._engine().error or "")
+        engine = self._engine()
+        assert engine.error is not None
+        assert "test" in engine.error
 
     def test_play_or_update_is_silent(self):
-        """Must not raise even when FluidSynth is absent."""
-        engine = self._engine()
-        engine.play_or_update(60, 0.8, "flute")  # should be a no-op
+        self._engine().play_or_update(60, 0.8, "flute")  # must not raise
 
     def test_stop_note_is_silent(self):
-        engine = self._engine()
-        engine.stop_note()  # must not raise
+        self._engine().stop_note()  # must not raise
 
     def test_shutdown_is_silent(self):
-        engine = self._engine()
-        engine.shutdown()  # must not raise
+        self._engine().shutdown()  # must not raise
+
+    def test_attach_media_is_silent(self):
+        self._engine().attach_media(MagicMock())  # must not raise
+
+    def test_self_test_no_op(self, monkeypatch):
+        import thereminvox.sound_engine as se
+        monkeypatch.setattr(se, "_AUDIO_TEST", True)
+        self._engine().self_test()  # must not raise
 
 
-# ── FluidSynth available (happy path with mocks) ─────────────────────
+# ── FluidSynth available — note lifecycle ─────────────────────────────────────
 
 class TestSoundEngineHappyPath:
     def test_ok_is_true(self):
-        engine, _, _ = _make_engine_with_mocks()
+        engine, _ = _make_engine_with_mocks()
         assert engine.ok is True
 
-    def test_first_call_starts_note(self):
-        engine, _, mock_part = _make_engine_with_mocks()
-        mock_handle = MagicMock(name="note_handle")
-        mock_part.start_note.return_value = mock_handle
-
+    def test_first_play_or_update_starts_note(self):
+        engine, mock_synth = _make_engine_with_mocks()
         engine.play_or_update(60, 0.8, "flute")
-
-        mock_part.start_note.assert_called_once_with(60, 0.8)
+        mock_synth.noteon.assert_called_with(CHAN, 60, 100)
         assert engine._current_pitch == 60
 
-    def test_same_pitch_updates_volume_only(self):
-        engine, _, mock_part = _make_engine_with_mocks()
-        mock_handle = MagicMock(name="note_handle")
-        mock_part.start_note.return_value = mock_handle
-
+    def test_same_pitch_updates_expression_only(self):
+        engine, mock_synth = _make_engine_with_mocks()
         engine.play_or_update(60, 0.8, "flute")
+        mock_synth.reset_mock()
+
         engine.play_or_update(60, 0.5, "flute")  # same pitch, different volume
 
-        # start_note called only once (first call)
-        mock_part.start_note.assert_called_once()
-        # volume updated on second call
-        mock_handle.change_volume.assert_called_with(0.5)
-        # pitch NOT changed (stays same)
-        mock_handle.change_pitch.assert_not_called()
+        # noteon must NOT fire again
+        mock_synth.noteon.assert_not_called()
+        # CC 11 (expression) must be updated
+        mock_synth.cc.assert_called_with(CHAN, 11, int(0.5 * 127))
 
-    def test_pitch_change_calls_change_pitch(self):
-        engine, _, mock_part = _make_engine_with_mocks()
-        mock_handle = MagicMock(name="note_handle")
-        mock_part.start_note.return_value = mock_handle
-
+    def test_pitch_change_triggers_noteoff_then_noteon(self):
+        engine, mock_synth = _make_engine_with_mocks()
         engine.play_or_update(60, 0.8, "flute")
-        engine.play_or_update(62, 0.8, "flute")  # pitch change
+        mock_synth.reset_mock()
 
-        mock_handle.change_pitch.assert_called_once_with(62)
+        engine.play_or_update(62, 0.8, "flute")
+
+        mock_synth.noteoff.assert_called_with(CHAN, 60)
+        mock_synth.noteon.assert_called_with(CHAN, 62, 100)
         assert engine._current_pitch == 62
 
-    def test_instrument_change_restarts_note(self):
-        engine, _, mock_part = _make_engine_with_mocks("flute")  # noqa: F841
-        violin_part = MagicMock(name="violin_part")
-        engine._parts_cache["violin"] = violin_part
-
-        flute_handle = MagicMock(name="flute_handle")
-        violin_handle = MagicMock(name="violin_handle")
-        mock_part.start_note.return_value = flute_handle
-        violin_part.start_note.return_value = violin_handle
-
+    def test_instrument_change_reprogram_and_retrigger(self):
+        engine, mock_synth = _make_engine_with_mocks("flute")
         engine.play_or_update(60, 0.8, "flute")
-        engine.play_or_update(60, 0.8, "violin")  # instrument switch
+        mock_synth.reset_mock()
 
+        engine.play_or_update(60, 0.8, "violin")
+
+        # New instrument must be programmed
+        mock_synth.program_select.assert_called()
         # Old note ended, new note started
-        flute_handle.end.assert_called_once()
-        violin_part.start_note.assert_called_once_with(60, 0.8)
+        mock_synth.noteoff.assert_called()
+        mock_synth.noteon.assert_called_with(CHAN, 60, 100)
 
-    def test_stop_note_calls_end(self):
-        engine, _, mock_part = _make_engine_with_mocks()
-        mock_handle = MagicMock(name="note_handle")
-        mock_part.start_note.return_value = mock_handle
-
+    def test_stop_note_sends_noteoff_and_clears_pitch(self):
+        engine, mock_synth = _make_engine_with_mocks()
         engine.play_or_update(60, 0.8, "flute")
         engine.stop_note()
-
-        mock_handle.end.assert_called_once()
-        assert engine._note_handle is None
+        mock_synth.noteoff.assert_called_with(CHAN, 60)
         assert engine._current_pitch is None
 
     def test_double_stop_does_not_raise(self):
-        engine, _, mock_part = _make_engine_with_mocks()
-        engine.stop_note()  # no note playing → must not raise
+        engine, _ = _make_engine_with_mocks()
+        engine.stop_note()  # no note playing
         engine.stop_note()  # idempotent
 
-    def test_shutdown_ends_note(self):
-        engine, _, mock_part = _make_engine_with_mocks()
-        mock_handle = MagicMock(name="note_handle")
-        mock_part.start_note.return_value = mock_handle
-
+    def test_shutdown_ends_note_and_deletes_synth(self):
+        engine, mock_synth = _make_engine_with_mocks()
         engine.play_or_update(60, 0.8, "flute")
         engine.shutdown()
+        mock_synth.noteoff.assert_called()
+        mock_synth.delete.assert_called_once()
+        assert engine._synth is None
 
-        mock_handle.end.assert_called_once()
+    # ── attach_media + pump ────────────────────────────────────────────────────
 
-    # ── self_test ─────────────────────────────────────────────────────
+    def test_attach_media_calls_start_playing(self):
+        engine, _ = _make_engine_with_mocks()
+        media = _make_mock_media()
+
+        engine.attach_media(media)
+        engine.shutdown()
+
+        media.start_playing.assert_called_once()
+
+    def test_pump_pushes_float32_stereo_to_media(self):
+        """Pump thread must push float32 (N, 2) arrays to media.push_audio_sample."""
+        engine, _ = _make_engine_with_mocks()
+        media = _make_mock_media()
+
+        pushed = threading.Event()
+        def _capture(data: object) -> None:
+            pushed.set()
+        media.push_audio_sample.side_effect = _capture
+
+        engine.attach_media(media)
+        assert pushed.wait(timeout=2.0), "pump never called push_audio_sample"
+        engine.shutdown()
+
+        call_arg = media.push_audio_sample.call_args[0][0]
+        assert call_arg.dtype == np.float32
+        assert call_arg.ndim == 2
+        assert call_arg.shape[1] == 2
+
+    def test_attach_media_with_no_audio_sub_object(self):
+        """Gracefully disabled when media.audio is None."""
+        engine, _ = _make_engine_with_mocks()
+        media = MagicMock(name="media_no_audio")
+        media.audio = None
+        engine.attach_media(media)  # must not raise
+        engine.shutdown()
+
+    def test_shutdown_calls_stop_playing(self):
+        engine, _ = _make_engine_with_mocks()
+        media = _make_mock_media()
+        engine.attach_media(media)
+        engine.shutdown()
+        media.stop_playing.assert_called_once()
+
+    # ── self_test ──────────────────────────────────────────────────────────────
 
     def test_self_test_plays_and_ends_note(self, monkeypatch):
-        """self_test() should start a note, sleep, then end it."""
+        """self_test must start a note, wait, then stop it."""
         import thereminvox.sound_engine as se
         monkeypatch.setattr(se, "_AUDIO_TEST", True)
+        monkeypatch.setattr(se, "_SELF_TEST_DURATION", 0.0)  # skip sleep
 
-        engine, _, mock_part = _make_engine_with_mocks()
-        mock_handle = MagicMock(name="self_test_handle")
-        mock_part.start_note.return_value = mock_handle
+        engine, mock_synth = _make_engine_with_mocks()
+        media = _make_mock_media()
+        engine.attach_media(media)
+        engine.self_test()
+        engine.shutdown()
 
-        import unittest.mock as um
-        with um.patch("thereminvox.sound_engine.time") as mock_time:
-            engine.self_test()
+        mock_synth.noteon.assert_called_with(CHAN, 60, 100)
+        mock_synth.noteoff.assert_called_with(CHAN, 60)
 
-        mock_part.start_note.assert_called_once_with(60, 0.8)
-        mock_handle.end.assert_called_once()
-        mock_time.sleep.assert_called_once_with(1.5)
-
-    def test_self_test_skipped_when_audio_test_is_false(self, monkeypatch):
-        """self_test() must be a no-op when THEREMINVOX_AUDIO_TEST=0."""
+    def test_self_test_skipped_when_audio_test_false(self, monkeypatch):
+        """THEREMINVOX_AUDIO_TEST=0 must suppress the tone entirely."""
         import thereminvox.sound_engine as se
         monkeypatch.setattr(se, "_AUDIO_TEST", False)
 
-        engine, _, mock_part = _make_engine_with_mocks()
+        engine, mock_synth = _make_engine_with_mocks()
+        media = _make_mock_media()
+        engine.attach_media(media)
         engine.self_test()
+        engine.shutdown()
 
-        mock_part.start_note.assert_not_called()
+        mock_synth.noteon.assert_not_called()
 
-
-class TestSoundEngineNoFluidSynthSelfTest:
-    def test_self_test_no_op_when_fluidsynth_unavailable(self, monkeypatch):
-        """self_test() must not raise when FluidSynth is absent."""
+    def test_self_test_no_op_without_attach(self, monkeypatch):
+        """self_test is skipped when attach_media has not been called yet."""
         import thereminvox.sound_engine as se
         monkeypatch.setattr(se, "_AUDIO_TEST", True)
+        monkeypatch.setattr(se, "_SELF_TEST_DURATION", 0.0)
 
-        probe_fail = FluidSynthProbeResult(False, "test: no fluidsynth")
-        with patch("thereminvox.sound_engine.probe_fluidsynth", return_value=probe_fail):
-            engine = SoundEngine()
+        engine, mock_synth = _make_engine_with_mocks()
+        engine.self_test()  # no media attached → must be a no-op
 
-        engine.self_test()  # must not raise
+        mock_synth.noteon.assert_not_called()
