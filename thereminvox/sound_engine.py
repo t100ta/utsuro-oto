@@ -36,7 +36,7 @@ from typing import Any
 from thereminvox.fluidsynth_check import FluidSynthProbeResult, probe_fluidsynth
 
 # ── Environment-variable configuration ──────────────────────────────────────
-_AUDIO_DRIVER = os.environ.get("THEREMINVOX_AUDIO_DRIVER", "auto")
+_AUDIO_DRIVER = os.environ.get("THEREMINVOX_AUDIO_DRIVER", "default")  # "default" = let scamp auto-detect
 _SOUNDFONT    = os.environ.get("THEREMINVOX_SOUNDFONT",    "default")
 _AUDIO_DEVICE = os.environ.get("THEREMINVOX_AUDIO_DEVICE", "")
 _SAMPLE_RATE  = os.environ.get("THEREMINVOX_SAMPLE_RATE",  "")
