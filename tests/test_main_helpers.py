@@ -75,3 +75,74 @@ class TestAnnotateFrame:
         assert result.shape == frame.shape
         # Frame should no longer be all zeros (circles were drawn)
         assert result.max() > 0
+
+
+# ── POST /config — content-type agnostic ──────────────────────────────
+
+class TestConfigEndpoint:
+    """The POST /config handler must accept JSON regardless of Content-Type.
+
+    The Reachy Mini hub proxy sometimes strips or rewrites the Content-Type
+    header before forwarding to the settings_app FastAPI instance, which
+    caused 422 errors when using a Pydantic body model.  The handler now
+    uses ``Request.json()`` directly to avoid this dependency.
+    """
+
+    @pytest.fixture
+    def config_app(self):
+        """Return a minimal FastAPI that reproduces the /config POST handler."""
+        from fastapi import FastAPI, Request
+        from fastapi.testclient import TestClient
+
+        import thereminvox.config as cfg_mod
+
+        app = FastAPI()
+
+        @app.post("/config")
+        async def update_config(request: Request) -> dict:
+            try:
+                data = await request.json()
+            except Exception:
+                data = {}
+            if not isinstance(data, dict):
+                data = {}
+            scale = data.get("scale")
+            if isinstance(scale, str):
+                cfg_mod.set_scale(scale)
+            idx = data.get("instrument_idx")
+            if isinstance(idx, int):
+                cfg_mod.set_instrument_idx(idx)
+            return {"scale": cfg_mod.get_scale()}
+
+        return TestClient(app)
+
+    def test_json_header_works(self, config_app):
+        r = config_app.post("/config", json={"scale": "blues"})
+        assert r.status_code == 200
+        assert r.json()["scale"] == "blues"
+
+    def test_no_content_type_still_works(self, config_app):
+        """Key regression: missing Content-Type must not return 422."""
+        import json
+        r = config_app.post("/config", content=json.dumps({"scale": "chromatic"}))
+        assert r.status_code == 200
+        assert r.json()["scale"] == "chromatic"
+
+    def test_text_plain_content_type_works(self, config_app):
+        import json
+        r = config_app.post(
+            "/config",
+            content=json.dumps({"scale": "pentatonic_minor"}),
+            headers={"Content-Type": "text/plain"},
+        )
+        assert r.status_code == 200
+        assert r.json()["scale"] == "pentatonic_minor"
+
+    def test_empty_body_returns_200(self, config_app):
+        r = config_app.post("/config")
+        assert r.status_code == 200
+
+    def test_instrument_idx_zero_is_accepted(self, config_app):
+        """instrument_idx=0 must not be silently dropped (it is falsy in Python)."""
+        r = config_app.post("/config", json={"instrument_idx": 0})
+        assert r.status_code == 200

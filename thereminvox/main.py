@@ -21,8 +21,8 @@ from typing import Any
 
 import cv2
 import numpy as np
+from fastapi import Request
 from fastapi.responses import HTMLResponse, StreamingResponse
-from pydantic import BaseModel
 from reachy_mini import ReachyMini, ReachyMiniApp
 from scipy.spatial.transform import Rotation as R
 
@@ -180,18 +180,23 @@ class Thereminvox(ReachyMiniApp):
                 media_type="multipart/x-mixed-replace; boundary=frame",
             )
 
-        class ConfigUpdate(BaseModel):
-            scale: str | None = None
-            instrument_idx: int | None = None
-
         @self.settings_app.post("/config")
-        def update_config(cfg: ConfigUpdate) -> dict[str, Any]:
-            if cfg.scale is not None:
-                set_scale(cfg.scale)
+        async def update_config(request: Request) -> dict[str, Any]:
+            # Parse body without inspecting Content-Type so the endpoint works
+            # even when the Reachy Mini hub proxy strips or rewrites the header.
+            try:
+                data = await request.json()
+            except Exception:
+                data = {}
+            if not isinstance(data, dict):
+                data = {}
+            scale = data.get("scale")
+            if isinstance(scale, str):
+                set_scale(scale)  # values not in SCALE_TABLES are silently ignored
                 self._status["scale"] = get_scale()
-            if cfg.instrument_idx is not None:
-                instr = set_instrument_idx(cfg.instrument_idx)
-                self._status["instrument"] = instr
+            idx = data.get("instrument_idx")
+            if isinstance(idx, int):  # explicit int check so idx=0 is not treated as falsy
+                self._status["instrument"] = set_instrument_idx(idx)
             return {
                 "scale": self._status["scale"],
                 "instrument": self._status["instrument"],
