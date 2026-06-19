@@ -962,7 +962,13 @@ dependencies = [
     { name = "gstreamer-libs" },
 ]
 wheels = [
+    { url = "https://files.pythonhosted.org/packages/5f/8e/c6fb5d34d069d044aada178f833a569baf233ba8bcbbafd917e56bd93f02/gstreamer_cli-1.28.4-cp313-cp313t-win32.whl", hash = "sha256:93d7aa36f91e2c21bff8b94e9b7b5858458edd298bf12611df65bbe69984d258", size = 5650998, upload-time = "2026-06-19T12:28:09.284Z" },
+    { url = "https://files.pythonhosted.org/packages/a5/b0/b4d2bd18548f61c645eed68ea2c72fe362124fee7a98538c34c16712f27c/gstreamer_cli-1.28.4-cp313-cp313t-win_amd64.whl", hash = "sha256:0fba66a2918b97df89a34c62e0f577b09d579ce3dc50cbd084bf12d6f47b0a5b", size = 6332968, upload-time = "2026-06-19T12:28:26.167Z" },
+    { url = "https://files.pythonhosted.org/packages/3f/b6/546b58a2ac79b6a555edd769cafc308806b174fe3adc82db99ea8d7d233e/gstreamer_cli-1.28.4-cp314-cp314t-win32.whl", hash = "sha256:5fec5d0a0f8ea9818659e20067d1365975236b43a17a1a63d87d3c0eae42eca0", size = 5753730, upload-time = "2026-06-19T12:28:44.552Z" },
+    { url = "https://files.pythonhosted.org/packages/ab/98/3ed3c482f8b67471aee05a7f6c5d8f09828b3ac1e4821a7249ac5b840e88/gstreamer_cli-1.28.4-cp314-cp314t-win_amd64.whl", hash = "sha256:9df202bbfe89537fc2e47846c67b0f0c194be101acd60c7d10ced5d2da82ed63", size = 6582109, upload-time = "2026-06-19T12:28:48.473Z" },
     { url = "https://files.pythonhosted.org/packages/4c/2f/4479a3d4bf3493ed00467ddb2ed6d28a6c7116d5ae5671a3bca8420866ce/gstreamer_cli-1.28.4-cp39-abi3-macosx_10_13_universal2.whl", hash = "sha256:2db1cab8e7ab5b543fa7d8d75cd7fbc0783b3b8853313d2ad7e52051f43d81db", size = 15777538, upload-time = "2026-06-15T08:04:04.075Z" },
+    { url = "https://files.pythonhosted.org/packages/f7/76/39a7027617fadbab9c04ed205cbb6bf0f2aeab388ddd5c17258d9d1e5bc9/gstreamer_cli-1.28.4-cp39-abi3-win32.whl", hash = "sha256:1d8187ca49c46b43b5e017fdbdd59d01f6479f45b98b243da56ac748a9326c9c", size = 5651001, upload-time = "2026-06-19T12:26:22.232Z" },
+    { url = "https://files.pythonhosted.org/packages/27/13/4883643943b2ff690af7f727468fd03c054c388f828dbd5039c0d973f892/gstreamer_cli-1.28.4-cp39-abi3-win_amd64.whl", hash = "sha256:6e558a8f58cc0b49299ba77577f13f7be12de9fbac2e2cca15b63fef88de72b1", size = 6332967, upload-time = "2026-06-19T12:26:27.645Z" },
 ]
 
 [[package]]
@@ -970,7 +976,13 @@ name = "gstreamer-ext-runtime"
 version = "1.28.4"
 source = { registry = "https://pypi.org/simple" }
 wheels = [
+    { url = "https://files.pythonhosted.org/packages/18/51/f57a6209cf2571832786d592bc5c9335284e7a98997d75c08bc8928cb3f8/gstreamer_ext_runtime-1.28.4-cp313-cp313t-win32.whl", hash = "sha256:7714895c3ea3d8aec9ac1f900cc7bde9fde26c4a2625086fdf7f6ef928a184b9", size = 871749, upload-time = "2026-06-19T12:28:50.349Z" },
+    { url = "https://files.pythonhosted.org/packages/5f/ec/15788d9e5165759e59d535d15728ad602ccf5c14f06a9840a8f7930349af/gstreamer_ext_runtime-1.28.4-cp313-cp313t-win_amd64.whl", hash = "sha256:7c46f93ee8872668c6157d2fd91f9f46c8e5cac73662d031ae5662ecb92b462e", size = 1004082, upload-time = "2026-06-19T12:28:52.302Z" },
+    { url = "https://files.pythonhosted.org/packages/e4/c2/d98132cffe5bb7e016bc0c83b33fba45b1d40d1d191b3e3ed8f353e38518/gstreamer_ext_runtime-1.28.4-cp314-cp314t-win32.whl", hash = "sha256:9944b7effc71398147f2ffbf343472ef4f776702039a8f75d3131e4580c37c49", size = 894965, upload-time = "2026-06-19T12:28:53.944Z" },
+    { url = "https://files.pythonhosted.org/packages/37/8f/e78caef885b9b4b750a97453520dc3469e957566fe2c2e42928740df2ea0/gstreamer_ext_runtime-1.28.4-cp314-cp314t-win_amd64.whl", hash = "sha256:3aff6d011ca448526a6a6d3e6b4a2e0abd039e6c15313329ea07151dcc88c431", size = 1032485, upload-time = "2026-06-19T12:28:55.773Z" },
     { url = "https://files.pythonhosted.org/packages/20/73/51a46056e49402f3662bc8e201e25e1d7caef6b65db69930b385b0fa4c9e/gstreamer_ext_runtime-1.28.4-cp39-abi3-macosx_10_13_universal2.whl", hash = "sha256:ee47805dded543346e738eba4c1ce449850f63dcf6d3ead301f2163e8cec229b", size = 2375, upload-time = "2026-06-15T08:07:36.628Z" },
+    { url = "https://files.pythonhosted.org/packages/99/ef/8af73f0d13175ea773e638643574f6b6758090ac441134501305bacbf7ce/gstreamer_ext_runtime-1.28.4-cp39-abi3-win32.whl", hash = "sha256:581b7e92f73b94596079eaeef7d0b8181bab3cdfe8cf9d7f1143553de7bf8eff", size = 871747, upload-time = "2026-06-19T12:26:30.026Z" },
+    { url = "https://files.pythonhosted.org/packages/ce/4b/01302f7ae0c1a034b414ae16c9531c3115bbfa5d833d787b2ae9a49e1650/gstreamer_ext_runtime-1.28.4-cp39-abi3-win_amd64.whl", hash = "sha256:d875569f1fe34a081abf7d620aedc8bf871d7c84dabbc9ccedfc9c6902149301", size = 1004082, upload-time = "2026-06-19T12:26:32.48Z" },
 ]
 
 [[package]]
@@ -978,7 +990,13 @@ name = "gstreamer-gtk"
 version = "1.28.4"
 source = { registry = "https://pypi.org/simple" }
 wheels = [
+    { url = "https://files.pythonhosted.org/packages/d4/08/68faaa4b247434ae7b0770b9e53f15a8348fa7f86088bd9cfd6c71fa630c/gstreamer_gtk-1.28.4-cp313-cp313t-win32.whl", hash = "sha256:5c3a56e927edad881eb8f51714270a899c5305411808e85685872f3281e16c54", size = 4852579, upload-time = "2026-06-19T12:28:58.015Z" },
+    { url = "https://files.pythonhosted.org/packages/c9/2b/8a3d10fb51881eda46fe11c7aeedbe07b920e2321941dcfca553ecf2aa59/gstreamer_gtk-1.28.4-cp313-cp313t-win_amd64.whl", hash = "sha256:7f001a8907a5ab2c427e4a0d933f8922b64a38eb76182134dad545d9cffe01db", size = 5877057, upload-time = "2026-06-19T12:29:00.083Z" },
+    { url = "https://files.pythonhosted.org/packages/c4/a3/a2eb789813e22a193dc0262f763c68ad7e641a38d7fab054cf2e447d6c64/gstreamer_gtk-1.28.4-cp314-cp314t-win32.whl", hash = "sha256:6d70ad113a4645054063f6af5cfc13851a010b5f9d29e9e94fc7097795282e6c", size = 4968664, upload-time = "2026-06-19T12:29:02.408Z" },
+    { url = "https://files.pythonhosted.org/packages/9e/fa/f95459aa3bde62f19a3bdd7fbf16058327e3cd39438f193461d44ae08516/gstreamer_gtk-1.28.4-cp314-cp314t-win_amd64.whl", hash = "sha256:1895e6bbd8fecd56967c429fdfa8877cecef01b335bdb0c2b656ae8f64d233fd", size = 6131187, upload-time = "2026-06-19T12:29:04.88Z" },
     { url = "https://files.pythonhosted.org/packages/b8/7c/67d0c83d03308e7fb5de2565c6108d94a5a4822b03747f865ef135b36d24/gstreamer_gtk-1.28.4-cp39-abi3-macosx_10_15_universal2.whl", hash = "sha256:bfd1f745d1760ac2dd6d64fa542f61cd193df0c251b67d99891cd5aace55504d", size = 20498261, upload-time = "2026-06-15T08:08:13.533Z" },
+    { url = "https://files.pythonhosted.org/packages/3b/a8/f1db8eda351362c16e1230cfe45b98862f51695645eefcc4bd3e22746499/gstreamer_gtk-1.28.4-cp39-abi3-win32.whl", hash = "sha256:3f59a0fbab70dab94bddd8355d096d94501efde589759db582b1f66d7037defa", size = 4852574, upload-time = "2026-06-19T12:26:35.579Z" },
+    { url = "https://files.pythonhosted.org/packages/95/79/777b7caf63183b55cbcd6ee25bb851e046b09d774bf1bf19b55372375b06/gstreamer_gtk-1.28.4-cp39-abi3-win_amd64.whl", hash = "sha256:f07ce23916b91dcc93374036916d87e4c97214db9f7c00df3cef0c857b5e20b4", size = 5877053, upload-time = "2026-06-19T12:26:38.594Z" },
 ]
 
 [[package]]
@@ -990,7 +1008,13 @@ dependencies = [
     { name = "setuptools" },
 ]
 wheels = [
+    { url = "https://files.pythonhosted.org/packages/f4/b9/07473da15217d15fb5eea3327aaff7a01dcd8f45baf2676eccee698c8134/gstreamer_libs-1.28.4-cp313-cp313t-win32.whl", hash = "sha256:c6bc6f6b4f968505462309076d3ca6c5c82c3c36eae8cf578207056ace5d8f20", size = 29112997, upload-time = "2026-06-19T12:29:09.882Z" },
+    { url = "https://files.pythonhosted.org/packages/bb/4b/defae4ea742e0aa59b7d60ab5a26c5e12b805397e5917d7181f074fc9102/gstreamer_libs-1.28.4-cp313-cp313t-win_amd64.whl", hash = "sha256:1c82ff852c5de7b7594325799d5366b258e7ce4316b14548d7572e923e4b4764", size = 33025885, upload-time = "2026-06-19T12:29:16.165Z" },
+    { url = "https://files.pythonhosted.org/packages/96/ed/2beb5d085be6b61c5a5fade1b92ec27e711c15a7077e16b496cf472da1df/gstreamer_libs-1.28.4-cp314-cp314t-win32.whl", hash = "sha256:da614be10370af609368c59081c40520fd4361e20cbef8a5ce5f19f7ff2e2bbd", size = 29922723, upload-time = "2026-06-19T12:29:22.251Z" },
+    { url = "https://files.pythonhosted.org/packages/5f/a7/936d780efab835aab8f3b00f82b4a279b9c26b3ae7fbb8f1fd011f624f50/gstreamer_libs-1.28.4-cp314-cp314t-win_amd64.whl", hash = "sha256:bbfb4a0d39786a42c5ec0cfeec78d9ac1a080e3571c5dd5cb22d2add8c6bf47e", size = 34109809, upload-time = "2026-06-19T12:29:28.099Z" },
     { url = "https://files.pythonhosted.org/packages/d7/dc/dd954a6f6ccc5d081b03fc11c70f22e4cb6caba4255c114dc6c820514e83/gstreamer_libs-1.28.4-cp39-abi3-macosx_10_13_universal2.whl", hash = "sha256:050679ec56676f5c549aa834b233d81367942214d3d3149761f498eb48ef5642", size = 96281413, upload-time = "2026-06-15T08:10:48.293Z" },
+    { url = "https://files.pythonhosted.org/packages/1f/98/d85bc72174afdcd82160cd7c1d3d5d20d36a6e8890f61959e02b25b18193/gstreamer_libs-1.28.4-cp39-abi3-win32.whl", hash = "sha256:2a21a55fd6205d00bbf382b6ee1630c5ac1cdc929c863e21eb98811c29ed4c06", size = 29112991, upload-time = "2026-06-19T12:26:43.86Z" },
+    { url = "https://files.pythonhosted.org/packages/9a/30/a96d4367061af0d374af684b4fe72fe32a8d7905573cb86cd09c4e5292db/gstreamer_libs-1.28.4-cp39-abi3-win_amd64.whl", hash = "sha256:40ad90814396fc1b4131f3e72225aa1b325d0b4fd70d9f5103b6e198b639aaef", size = 33025882, upload-time = "2026-06-19T12:26:50.385Z" },
 ]
 
 [[package]]
@@ -1001,7 +1025,13 @@ dependencies = [
     { name = "gstreamer-plugins-libs" },
 ]
 wheels = [
+    { url = "https://files.pythonhosted.org/packages/f5/cc/26d6097d8c79505edc5ad89760b637ab14c5fdecadc1e1d08f9849806f8b/gstreamer_plugins-1.28.4-cp313-cp313t-win32.whl", hash = "sha256:cdffffdbb056a6bc2348a8837031a7422254bf94aba64940620ff580ba7b23e9", size = 40101269, upload-time = "2026-06-19T12:29:34.965Z" },
+    { url = "https://files.pythonhosted.org/packages/fa/65/42198b5a5ac800655630287497c32612460f712c873707d75157bb113516/gstreamer_plugins-1.28.4-cp313-cp313t-win_amd64.whl", hash = "sha256:2a55ae43eeccf093118d4425afd2f4f539f315694e461bc35f83d5fd913e42b0", size = 46713600, upload-time = "2026-06-19T12:29:42.437Z" },
+    { url = "https://files.pythonhosted.org/packages/43/a7/0d981b394899a1b234269f18989686867e932cdfa904a637f375b264cbe6/gstreamer_plugins-1.28.4-cp314-cp314t-win32.whl", hash = "sha256:95e9b1c17ced676ced32424502586b0221394a58d230073f0dd88eb5ec65b199", size = 41140039, upload-time = "2026-06-19T12:29:49.156Z" },
+    { url = "https://files.pythonhosted.org/packages/e7/dd/306743eaf98991a26c7993745f406e812000191ce9f0cbcdba7da0ad75dd/gstreamer_plugins-1.28.4-cp314-cp314t-win_amd64.whl", hash = "sha256:75fb22158828560ff1b3020435734ceaed1d4c748e377c4caa6b08af1e44598f", size = 48115146, upload-time = "2026-06-19T12:29:56.873Z" },
     { url = "https://files.pythonhosted.org/packages/28/88/f57f3a1cf57e794cda7af6fbe46993afed37af7fc858ae115dfc705243e4/gstreamer_plugins-1.28.4-cp39-abi3-macosx_10_13_universal2.whl", hash = "sha256:96401e0eca66e03e675b2c9ba6f29a29bcbb1e9ced11679abe8993e1e4301761", size = 101492264, upload-time = "2026-06-15T08:12:05.281Z" },
+    { url = "https://files.pythonhosted.org/packages/db/68/3dbc73859ffae05e62766e183b7de873485b5e8caf141940203dac596549/gstreamer_plugins-1.28.4-cp39-abi3-win32.whl", hash = "sha256:1aadd97914559b1da68c5396cce9974ad98fef85f806ae5b6cf353707d0d6ee6", size = 40101270, upload-time = "2026-06-19T12:26:58.455Z" },
+    { url = "https://files.pythonhosted.org/packages/3b/2c/4113d48001097c2d5dc65c30cf0a6fb6d73c0793b72faa94427f31025677/gstreamer_plugins-1.28.4-cp39-abi3-win_amd64.whl", hash = "sha256:e9201f50059469749aed3d559b878ed9a0da23e7ea33fd3eba1124bd8e8ef1de", size = 46713600, upload-time = "2026-06-19T12:27:22.555Z" },
 ]
 
 [[package]]
@@ -1012,7 +1042,13 @@ dependencies = [
     { name = "gstreamer-plugins-libs" },
 ]
 wheels = [
+    { url = "https://files.pythonhosted.org/packages/18/75/5de4c7d22831cf2c9dd3fab9b9088c9ad9f3d849b305dcd219b5c90c0eb4/gstreamer_plugins_gpl-1.28.4-cp313-cp313t-win32.whl", hash = "sha256:b3f21aebfdd2b65f8e252db3f622009fd5979354c33dd7dbb5e20db5138d66ef", size = 318898, upload-time = "2026-06-19T12:30:07.555Z" },
+    { url = "https://files.pythonhosted.org/packages/ab/fe/f0c02069227753662fb490ef24ec87d75ae45640dd35a8c9c63f55ff15a6/gstreamer_plugins_gpl-1.28.4-cp313-cp313t-win_amd64.whl", hash = "sha256:c5ba47ab186b7fd62558b982d4a652a45352677bddecb9c22e1c64d18aafc304", size = 356385, upload-time = "2026-06-19T12:30:09.03Z" },
+    { url = "https://files.pythonhosted.org/packages/79/24/7bdd5a2c774a1a5e71813f9252b425c65707f3087e00d1ebb2adb26bb297/gstreamer_plugins_gpl-1.28.4-cp314-cp314t-win32.whl", hash = "sha256:1a52765e7e97928e91a8891a406cd0d3a49dfc8b457daa387f5b4f6c9658af4e", size = 326147, upload-time = "2026-06-19T12:30:11.001Z" },
+    { url = "https://files.pythonhosted.org/packages/be/67/f26c208cf998d2631765fa4b2212697fc7084db5aaddd7b36fc1ac0d521b/gstreamer_plugins_gpl-1.28.4-cp314-cp314t-win_amd64.whl", hash = "sha256:59f25d9364ea32eafc7a67e22595a64da6bc571699c05658e0587e54bfbacc72", size = 363941, upload-time = "2026-06-19T12:30:12.805Z" },
     { url = "https://files.pythonhosted.org/packages/75/a5/b8ba6f06f49dd20e9dd52abb1a5f32eb59d0d239228c19e4598319e438f0/gstreamer_plugins_gpl-1.28.4-cp39-abi3-macosx_10_13_universal2.whl", hash = "sha256:16e6f442124007690ef467093b5aa22d27e3d89b101f11c76d57089002206ba5", size = 1049786, upload-time = "2026-06-15T08:12:12.451Z" },
+    { url = "https://files.pythonhosted.org/packages/7d/f9/246972d6ca8b65e0398f583b8ba1ea4e9947ec253ca3f2f7988f5c7d6e58/gstreamer_plugins_gpl-1.28.4-cp39-abi3-win32.whl", hash = "sha256:1a0e7037b5ad58bd7050b6bb4c40933471d580d1474d351f015c8fc93ca0088a", size = 318898, upload-time = "2026-06-19T12:27:29.788Z" },
+    { url = "https://files.pythonhosted.org/packages/6a/1d/f9d7e921092068572d607ac9d9afc4a9bd9234145a3d84d66867735f6b50/gstreamer_plugins_gpl-1.28.4-cp39-abi3-win_amd64.whl", hash = "sha256:70c33bac80d3d735284ff17f9424ef774f27c5ae0bf5d670dcb78553da0854c7", size = 356383, upload-time = "2026-06-19T12:27:31.277Z" },
 ]
 
 [[package]]
@@ -1023,7 +1059,13 @@ dependencies = [
     { name = "gstreamer-plugins-libs" },
 ]
 wheels = [
+    { url = "https://files.pythonhosted.org/packages/e8/58/35587bac7a620a72330e357be147f12faa03b06c244eb6fb54d3302cf87d/gstreamer_plugins_gpl_restricted-1.28.4-cp313-cp313t-win32.whl", hash = "sha256:1bb8eb2f8c98befdfe286bf98afd2f0f85edbf86d9ccce30ba2d0d1f74976e67", size = 2150265, upload-time = "2026-06-19T12:30:15.12Z" },
+    { url = "https://files.pythonhosted.org/packages/95/b1/40674ef6459b3b058d8dda452fd187a1f76e4959421d4fd465fd8e34c920/gstreamer_plugins_gpl_restricted-1.28.4-cp313-cp313t-win_amd64.whl", hash = "sha256:407739f64175f05f4d5924842bb2ecb12d0522abade8ec98b8d608e3a8eb7c6d", size = 3403226, upload-time = "2026-06-19T12:30:17.655Z" },
+    { url = "https://files.pythonhosted.org/packages/75/d6/793a3b109b28e667118a62db0c486fbe0f55001b0dcb4d2cad9aa4c6bd64/gstreamer_plugins_gpl_restricted-1.28.4-cp314-cp314t-win32.whl", hash = "sha256:33d5732cd74b7ff4a1e7e7221b421c60da5efe18d90c2fd40bc720996f02c794", size = 2203794, upload-time = "2026-06-19T12:30:19.58Z" },
+    { url = "https://files.pythonhosted.org/packages/ec/ca/6488b6d95a6f4619af57010e9599acd83ee492aba9c5c9d72137da91789b/gstreamer_plugins_gpl_restricted-1.28.4-cp314-cp314t-win_amd64.whl", hash = "sha256:73b6ad531e289d13ee3f59ce30b7b1daf7304705c34f57c5ebbf0e1869e2775d", size = 3498316, upload-time = "2026-06-19T12:30:21.548Z" },
     { url = "https://files.pythonhosted.org/packages/aa/e6/814df679c32822109c26ae26a5673abbc33d639afe3ebc0a93b23ee0ec00/gstreamer_plugins_gpl_restricted-1.28.4-cp39-abi3-macosx_10_13_universal2.whl", hash = "sha256:e81ee50d88059d0b8fc42f8dbadbb136e1cc16c73254a5907981403183d01e91", size = 13453376, upload-time = "2026-06-15T08:12:22.956Z" },
+    { url = "https://files.pythonhosted.org/packages/28/75/c01bb6b438747639dbbc9c626260ab93ddb5e1863a7f171115c426f71fd3/gstreamer_plugins_gpl_restricted-1.28.4-cp39-abi3-win32.whl", hash = "sha256:3e309536f15cace7e71b579f78e333d374c9eaa8353463f09e5b7071dd6d9b0b", size = 2150267, upload-time = "2026-06-19T12:27:34.045Z" },
+    { url = "https://files.pythonhosted.org/packages/59/c4/d4f155eb7b43585835c2f4bf14c4b1265dd3496a965d56e749c1d57dd568/gstreamer_plugins_gpl_restricted-1.28.4-cp39-abi3-win_amd64.whl", hash = "sha256:555fb3047657d9fc0f0e9746f3bcdc6c7281b65c93b1a1627390af3b0929d6e9", size = 3403215, upload-time = "2026-06-19T12:27:37.406Z" },
 ]
 
 [[package]]
@@ -1034,7 +1076,13 @@ dependencies = [
     { name = "gstreamer-libs" },
 ]
 wheels = [
+    { url = "https://files.pythonhosted.org/packages/9c/c4/ee9ae0eab10456dd645501f4252295559ab029515dcc2126d3e22cd68ab2/gstreamer_plugins_libs-1.28.4-cp313-cp313t-win32.whl", hash = "sha256:5b0bd95ba162fadef6a0bb48c9c8803f3732a542d256aa392680dc8b71583c77", size = 16393366, upload-time = "2026-06-19T12:30:24.604Z" },
+    { url = "https://files.pythonhosted.org/packages/7f/d6/91c8b1324b39d317596b2ab02aa4c15ada9fbc8ce99029284f148b43f987/gstreamer_plugins_libs-1.28.4-cp313-cp313t-win_amd64.whl", hash = "sha256:1ec6163178f18f9f2c9646379cc3b0c7d43767debc6a7c7fc4a2d49c9ba7dcec", size = 21167762, upload-time = "2026-06-19T12:30:29.377Z" },
+    { url = "https://files.pythonhosted.org/packages/ce/a7/dde4342fa32ff659823039a49548eaae0b676c4ea8efc2a366d36b2bc1cf/gstreamer_plugins_libs-1.28.4-cp314-cp314t-win32.whl", hash = "sha256:7495f13aa7e0adccd7b9e5168785545ae6e14e8edd1d1a4c607bb8a03a29ccc7", size = 16687216, upload-time = "2026-06-19T12:30:33.433Z" },
+    { url = "https://files.pythonhosted.org/packages/3f/38/e19a1b928d0e490b65b1362f83ae5ec5ee0e4ec07e5bb4b213d143260501/gstreamer_plugins_libs-1.28.4-cp314-cp314t-win_amd64.whl", hash = "sha256:7389c80e4fc45593b8d5b7b7ab0f62ecd6c9c3f0c1553be6d441a4d79427171b", size = 21650000, upload-time = "2026-06-19T12:30:37.611Z" },
     { url = "https://files.pythonhosted.org/packages/06/03/2f71e1c322eed79b8ddaf831351cf8f6215c433d9babc182a3b0f0a9e637/gstreamer_plugins_libs-1.28.4-cp39-abi3-macosx_10_13_universal2.whl", hash = "sha256:1bd17be5cf37b6ca8378a181e074928d94a4934fb7f874dcf271e858d29684e8", size = 83518063, upload-time = "2026-06-15T08:12:49.084Z" },
+    { url = "https://files.pythonhosted.org/packages/c0/ec/ddb714b93dc78cd370e2f9f5384bccdf96d7b259e713fddaa3bf970d9a57/gstreamer_plugins_libs-1.28.4-cp39-abi3-win32.whl", hash = "sha256:986983b5714f020aeac0b63d483057dd2bce4f91b074511a5d5b7fd800849b47", size = 16393363, upload-time = "2026-06-19T12:27:41.201Z" },
+    { url = "https://files.pythonhosted.org/packages/9e/ad/ea84f5aa2755cd993bfd6acc2fd1b2bcea30fff4a83f60de6faad1924086/gstreamer_plugins_libs-1.28.4-cp39-abi3-win_amd64.whl", hash = "sha256:72dd73d80d18af47334d648d3e15c86d400732e80d65c8facffa0ad7b020ba5e", size = 21167760, upload-time = "2026-06-19T12:27:46.351Z" },
 ]
 
 [[package]]
@@ -1045,7 +1093,13 @@ dependencies = [
     { name = "gstreamer-plugins-libs" },
 ]
 wheels = [
+    { url = "https://files.pythonhosted.org/packages/a9/a4/f4d0e321d50fd1c49c901608e7a1213b4f1de7122c5e5b0e8f45c7e41e2b/gstreamer_plugins_restricted-1.28.4-cp313-cp313t-win32.whl", hash = "sha256:4e7041c4ab0c38197de01eb63dec06e202ae3e7fe915a25c37a9eddfc9522e7a", size = 1421394, upload-time = "2026-06-19T12:30:39.804Z" },
+    { url = "https://files.pythonhosted.org/packages/c2/05/b34dbd49c398fdced75507dca4919b777dfe596849b409d2bf92a9bd3b8c/gstreamer_plugins_restricted-1.28.4-cp313-cp313t-win_amd64.whl", hash = "sha256:428caa54cd56a41cf02425bfc91656a62100be9c5b6e1412dd6f945a8c099a41", size = 1513353, upload-time = "2026-06-19T12:30:41.417Z" },
+    { url = "https://files.pythonhosted.org/packages/5b/fa/50d8f81674eb664e10eda9735f57bad12567acf67fb04dc04548e72d79d2/gstreamer_plugins_restricted-1.28.4-cp314-cp314t-win32.whl", hash = "sha256:d4d5b8346ab7de98fe00506c04e4446f0b071e6d76ef1a4c9ffcb7f3f777fbdc", size = 1456475, upload-time = "2026-06-19T12:30:42.965Z" },
+    { url = "https://files.pythonhosted.org/packages/60/b0/ec9844b79657b44f67d8368b4533c9be8f6f8ae34824a82fc39bc1f3bf36/gstreamer_plugins_restricted-1.28.4-cp314-cp314t-win_amd64.whl", hash = "sha256:63618cbba68fcd14f1f573aea3f445bed5e5fd654909bb7a2f8f5f1c3ce06b83", size = 1561038, upload-time = "2026-06-19T12:30:45.118Z" },
     { url = "https://files.pythonhosted.org/packages/29/a2/1bed33c875782e1c041b160479136cac8a612bfd794b7989ea18af3ddd56/gstreamer_plugins_restricted-1.28.4-cp39-abi3-macosx_10_13_universal2.whl", hash = "sha256:751d12daf9652d4c45c5a8548dbec9b5c46ab48bdababf37a8bc9831a382ac3d", size = 6103261, upload-time = "2026-06-15T08:12:54.29Z" },
+    { url = "https://files.pythonhosted.org/packages/06/40/2925c084479529548472165cdd405dccf105e83e75947ed0e797d6e6659d/gstreamer_plugins_restricted-1.28.4-cp39-abi3-win32.whl", hash = "sha256:89dc6e20c9cd04c5496b13102518c1c9ea7aab4dbfcc0ef5c32ee52385dcd167", size = 1421392, upload-time = "2026-06-19T12:27:48.896Z" },
+    { url = "https://files.pythonhosted.org/packages/06/0d/9cd4c56980e9751dcd962f3db04105f45609ca43e0974b25d8f1b0b7e91e/gstreamer_plugins_restricted-1.28.4-cp39-abi3-win_amd64.whl", hash = "sha256:76118fdff61ff7fec5a2b6d7f7d91467c3ef4335a490e6fe274ff14614d8c732", size = 1513346, upload-time = "2026-06-19T12:27:50.769Z" },
 ]
 
 [[package]]
@@ -1054,10 +1108,24 @@ version = "1.28.4"
 source = { registry = "https://pypi.org/simple" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/d5/cf/f1f7eaed33780d221fe7b43e8852f2b29432c5203ec626e852b1428e5696/gstreamer_python-1.28.4-cp310-cp310-macosx_10_13_universal2.whl", hash = "sha256:cff66ddd230dc0a671713949c2f221441b3eaf3443f9a1e5952868d0c80070f1", size = 1187303, upload-time = "2026-06-15T08:13:11.781Z" },
+    { url = "https://files.pythonhosted.org/packages/6e/71/5389291a78eeecad87bde6c26aa87726a9b83fa2f2ed27972a23251f1f3f/gstreamer_python-1.28.4-cp310-cp310-win32.whl", hash = "sha256:531bb52e23fcb34a97091c77d9958b00b3e26c491d5cff9ecc856cb7bbec1ab9", size = 930764, upload-time = "2026-06-19T12:30:46.705Z" },
+    { url = "https://files.pythonhosted.org/packages/9f/6c/92948c4c5e1529709965ee32ac467388a28ac9f3a2379a7029a46bc435cc/gstreamer_python-1.28.4-cp310-cp310-win_amd64.whl", hash = "sha256:be65a9c6ff281b0b3c4f4ec0f6cf63637050311410558d0d93724656522636e9", size = 970206, upload-time = "2026-06-19T12:30:48.549Z" },
     { url = "https://files.pythonhosted.org/packages/f4/88/0d7861ef4b18f131e0c2a7371c1ee9d62ea05bf3e50f74c2beb5d96bd3be/gstreamer_python-1.28.4-cp311-cp311-macosx_10_13_universal2.whl", hash = "sha256:a562f5892193cc240326cb93220c56f90852def3c8a64ecbba528790ed28bd4d", size = 1187642, upload-time = "2026-06-15T08:13:15.389Z" },
+    { url = "https://files.pythonhosted.org/packages/52/44/f3edda060e7e89addd1a8c8093101ad91fc3033be6246bdd6b51613a7788/gstreamer_python-1.28.4-cp311-cp311-win32.whl", hash = "sha256:6aa348ba81f29be28160056e1a79fb7ecc683b258f2d051662438d416ea55a1f", size = 931181, upload-time = "2026-06-19T12:30:50.585Z" },
+    { url = "https://files.pythonhosted.org/packages/8f/90/692171818c52895f0f955331875985549ce8972b5ed6ad877670016bc79f/gstreamer_python-1.28.4-cp311-cp311-win_amd64.whl", hash = "sha256:a3f31b932054de25f76d37ae519da1bd55dbe87b9e218cd413c1af89a350eeeb", size = 971260, upload-time = "2026-06-19T12:30:52.617Z" },
     { url = "https://files.pythonhosted.org/packages/a7/54/d852200d2c14bd742b2781a107cb1f09eda29c1653e43065b75bc6e2fa49/gstreamer_python-1.28.4-cp312-cp312-macosx_10_13_universal2.whl", hash = "sha256:479f39fbe817af7796a3ef5cd5d66119cef0b1f7dd4e06858f05d65b07028e0e", size = 1196719, upload-time = "2026-06-15T08:13:18.494Z" },
+    { url = "https://files.pythonhosted.org/packages/76/c9/d44819c4b150272dc5b3bc5d439a06263c6da7a38f4db8d18593c811d56b/gstreamer_python-1.28.4-cp312-cp312-win32.whl", hash = "sha256:56247c4c8b729d0752f5083e27715ea14ed14425124f73f3823d753f5e846777", size = 933318, upload-time = "2026-06-19T12:30:54.781Z" },
+    { url = "https://files.pythonhosted.org/packages/0f/02/c5dde122ce54dd26e3113c7921bed408bb9ea3ef14fce9590e700ab94d11/gstreamer_python-1.28.4-cp312-cp312-win_amd64.whl", hash = "sha256:071fbaebfd22122cd2416033f6a8b87b901de5d219dd5f8e8a5ece37284429f9", size = 973975, upload-time = "2026-06-19T12:30:56.621Z" },
     { url = "https://files.pythonhosted.org/packages/ad/ad/32cc2bf6ea444c28211de66cc3de460d0f0a9142b5864d523b6d18f8117e/gstreamer_python-1.28.4-cp313-cp313-macosx_10_13_universal2.whl", hash = "sha256:de0ab07f5c1d07ed72156c15ba72a2afa5ab91c4d75b63cc7da27fa5c8e99021", size = 1205533, upload-time = "2026-06-15T08:13:21.016Z" },
+    { url = "https://files.pythonhosted.org/packages/07/4f/2511b34d8cd7fdea9f43cb77772fb3f3b57c6eae25a1d4c9572b98a3c35b/gstreamer_python-1.28.4-cp313-cp313-win32.whl", hash = "sha256:522a2b9f41003356d935397eb5d526d837d5e9804a39b44a0ebd6fb10721f59b", size = 934037, upload-time = "2026-06-19T12:31:01.912Z" },
+    { url = "https://files.pythonhosted.org/packages/b2/17/73a6d8738179b3b11cb00c9051ccb1279dab919fd6efcfa0b81e7e9c99dc/gstreamer_python-1.28.4-cp313-cp313-win_amd64.whl", hash = "sha256:80ac9443d86c74193679e46e8a621edf52353d12150663d7858cbaac9d0d76a7", size = 975171, upload-time = "2026-06-19T12:31:04.221Z" },
+    { url = "https://files.pythonhosted.org/packages/27/47/259c90d12b60fc5b6893aee6e4c63acc4fe29f0e19ef9cfc8db2a675cc55/gstreamer_python-1.28.4-cp313-cp313t-win32.whl", hash = "sha256:95a0c343bf496411e516fbfb7bad898dbf41ed35c115378e84fc47ac64fff125", size = 948187, upload-time = "2026-06-19T12:30:58.453Z" },
+    { url = "https://files.pythonhosted.org/packages/19/81/f60dcf657656fff24a69e6b0d108fb4f7c370389cec4a736d5d529c31810/gstreamer_python-1.28.4-cp313-cp313t-win_amd64.whl", hash = "sha256:3ea1cc275846b67c62d379e04e9b1297d7bc2efd775245f5adad12a5ecaa8831", size = 994630, upload-time = "2026-06-19T12:31:00.246Z" },
     { url = "https://files.pythonhosted.org/packages/3a/06/d8d098b9ed0bdb321576e40da15e977fa56149928a88f06e49a72a8ae9cd/gstreamer_python-1.28.4-cp314-cp314-macosx_10_15_universal2.whl", hash = "sha256:b5659fb46fd42fdca3b228a8fc2c8ca353f6b81cea094c05ed1ee402686bc93f", size = 1204431, upload-time = "2026-06-15T08:13:23.021Z" },
+    { url = "https://files.pythonhosted.org/packages/42/c6/b9e2107ba0a25faaa928bfb2fb326e5155f1c1d6412297ed90f9a7469f35/gstreamer_python-1.28.4-cp314-cp314-win32.whl", hash = "sha256:bef596ecad9dd9537d82971fc1fc3a58f349b949f120076899a1ba7b958fffa5", size = 959560, upload-time = "2026-06-19T12:31:09.438Z" },
+    { url = "https://files.pythonhosted.org/packages/a8/fc/8e4765f2fd2154756f36fa28f4176b2be7117f18cd1f5dbaa0438e60aaf0/gstreamer_python-1.28.4-cp314-cp314-win_amd64.whl", hash = "sha256:6d3ea5449e32de67f807ec0e78a3cd5d18beb89bb5d9ace7c4f2a6f8f8c5d59e", size = 1000985, upload-time = "2026-06-19T12:31:11.483Z" },
+    { url = "https://files.pythonhosted.org/packages/dc/29/4f0718ddb0bf6847532f3b1139da7f20026c2ff790639c2f050cf84ad739/gstreamer_python-1.28.4-cp314-cp314t-win32.whl", hash = "sha256:43360e27786ef470e05d34cbf720f4792b8749655d3ab049a327d3441cbe6bbe", size = 974934, upload-time = "2026-06-19T12:31:05.984Z" },
+    { url = "https://files.pythonhosted.org/packages/36/94/1046ab58bd77c020fe26572977c015187c4a8abba1467df4db2de837677f/gstreamer_python-1.28.4-cp314-cp314t-win_amd64.whl", hash = "sha256:6f8b40cfbed4d990aa566b9993dab9ce5735b2dc480dfcb0bcb6344d94af9b92", size = 1023361, upload-time = "2026-06-19T12:31:07.779Z" },
 ]
 
 [[package]]
@@ -3566,47 +3634,6 @@ wheels = [
 ]
 
 [[package]]
-name = "thereminvox"
-version = "0.1.0"
-source = { editable = "." }
-dependencies = [
-    { name = "markdown" },
-    { name = "pyfluidsynth" },
-    { name = "reachy-mini" },
-    { name = "reachy-mini-toolbox", extra = ["vision"] },
-    { name = "scamp", version = "0.9.3.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
-    { name = "scamp", version = "0.9.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
-    { name = "scipy", version = "1.15.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
-    { name = "scipy", version = "1.17.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
-]
-
-[package.dev-dependencies]
-dev = [
-    { name = "mypy" },
-    { name = "pytest" },
-    { name = "pytest-asyncio" },
-    { name = "ruff" },
-]
-
-[package.metadata]
-requires-dist = [
-    { name = "markdown" },
-    { name = "pyfluidsynth" },
-    { name = "reachy-mini" },
-    { name = "reachy-mini-toolbox", extras = ["vision"], specifier = ">=1.1.2" },
-    { name = "scamp" },
-    { name = "scipy" },
-]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "mypy", specifier = "==1.18.2" },
-    { name = "pytest", specifier = ">=8.0" },
-    { name = "pytest-asyncio", specifier = ">=0.23" },
-    { name = "ruff", specifier = "==0.12.0" },
-]
-
-[[package]]
 name = "toml"
 version = "0.10.2"
 source = { registry = "https://pypi.org/simple" }
@@ -3724,6 +3751,47 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/53/0c/06f8b233b8fd13b9e5ee11424ef85419ba0d8ba0b3138bf360be2ff56953/urllib3-2.7.0.tar.gz", hash = "sha256:231e0ec3b63ceb14667c67be60f2f2c40a518cb38b03af60abc813da26505f4c", size = 433602, upload-time = "2026-05-07T16:13:18.596Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/7f/3e/5db95bcf282c52709639744ca2a8b149baccf648e39c8cc87553df9eae0c/urllib3-2.7.0-py3-none-any.whl", hash = "sha256:9fb4c81ebbb1ce9531cce37674bbc6f1360472bc18ca9a553ede278ef7276897", size = 131087, upload-time = "2026-05-07T16:13:17.151Z" },
+]
+
+[[package]]
+name = "utsuro-oto"
+version = "0.1.0"
+source = { editable = "." }
+dependencies = [
+    { name = "markdown" },
+    { name = "pyfluidsynth" },
+    { name = "reachy-mini" },
+    { name = "reachy-mini-toolbox", extra = ["vision"] },
+    { name = "scamp", version = "0.9.3.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.12'" },
+    { name = "scamp", version = "0.9.5", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.12'" },
+    { name = "scipy", version = "1.15.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.11'" },
+    { name = "scipy", version = "1.17.1", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
+]
+
+[package.dev-dependencies]
+dev = [
+    { name = "mypy" },
+    { name = "pytest" },
+    { name = "pytest-asyncio" },
+    { name = "ruff" },
+]
+
+[package.metadata]
+requires-dist = [
+    { name = "markdown" },
+    { name = "pyfluidsynth" },
+    { name = "reachy-mini" },
+    { name = "reachy-mini-toolbox", extras = ["vision"], specifier = ">=1.1.2" },
+    { name = "scamp" },
+    { name = "scipy" },
+]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "mypy", specifier = "==1.18.2" },
+    { name = "pytest", specifier = ">=8.0" },
+    { name = "pytest-asyncio", specifier = ">=0.23" },
+    { name = "ruff", specifier = "==0.12.0" },
 ]
 
 [[package]]

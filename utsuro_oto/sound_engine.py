@@ -22,11 +22,11 @@ Typical usage::
 
 Environment variables::
 
-    THEREMINVOX_SOUNDFONT   Soundfont name or path (default: "default" = Merlin.sf2
+    UTSURO_OTO_SOUNDFONT   Soundfont name or path (default: "default" = Merlin.sf2
                             bundled with scamp).
-    THEREMINVOX_GAIN        FluidSynth master gain (default: "0.5"; FluidSynth default
+    UTSURO_OTO_GAIN        FluidSynth master gain (default: "0.5"; FluidSynth default
                             is 0.2 which is quiet — increase to 1.0 if still too soft).
-    THEREMINVOX_AUDIO_TEST  Set to "0" to skip the 1.5 s startup self-test tone
+    UTSURO_OTO_AUDIO_TEST  Set to "0" to skip the 1.5 s startup self-test tone
                             (default: enabled).
 """
 from __future__ import annotations
@@ -38,7 +38,7 @@ from typing import Any
 
 import numpy as np
 
-from thereminvox.fluidsynth_check import FluidSynthProbeResult, probe_fluidsynth
+from utsuro_oto.fluidsynth_check import FluidSynthProbeResult, probe_fluidsynth
 
 # ── Bundled fluidsynth (scamp._thirdparty) + soundfont helpers ───────────────
 # scamp 0.9.5 ships its own pyfluidsynth wrapper and libfluidsynth binary
@@ -59,9 +59,9 @@ except Exception:
     get_best_preset_match_for_name = None  # type: ignore[assignment]
 
 # ── Environment-variable configuration ──────────────────────────────────────
-_SOUNDFONT  = os.environ.get("THEREMINVOX_SOUNDFONT",  "default")
-_GAIN       = float(os.environ.get("THEREMINVOX_GAIN", "0.5"))   # FluidSynth default 0.2 is too quiet
-_AUDIO_TEST = os.environ.get("THEREMINVOX_AUDIO_TEST", "1") != "0"
+_SOUNDFONT  = os.environ.get("UTSURO_OTO_SOUNDFONT",  "default")
+_GAIN       = float(os.environ.get("UTSURO_OTO_GAIN", "0.5"))   # FluidSynth default 0.2 is too quiet
+_AUDIO_TEST = os.environ.get("UTSURO_OTO_AUDIO_TEST", "1") != "0"
 
 # Duration of the startup self-test tone in seconds.
 # Set to 0.0 in unit tests to skip the sleep without patching the time module.
@@ -180,13 +180,13 @@ class SoundEngine:
         """Play a short tone (C4) at startup to confirm audio routing works.
 
         Must be called *after* ``attach_media``.  Disabled by setting
-        ``THEREMINVOX_AUDIO_TEST=0``.
+        ``UTSURO_OTO_AUDIO_TEST=0``.
         """
         if not self.ok or not _AUDIO_TEST or self._media is None:
             return
         print(
             f"[Audio] self-test: playing {_SELF_TEST_DURATION:.1f} s tone (C4) "
-            "… (THEREMINVOX_AUDIO_TEST=0 to skip)"
+            "… (UTSURO_OTO_AUDIO_TEST=0 to skip)"
         )
         try:
             self.play_or_update(60, 0.8, self._current_instrument or "flute")

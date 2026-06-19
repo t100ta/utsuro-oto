@@ -1,4 +1,4 @@
-"""Tests for thereminvox.mapping — core pitch/amplitude mapping logic.
+"""Tests for utsuro_oto.mapping — core pitch/amplitude mapping logic.
 
 These tests cover pure functions and classes that contain the musical heart
 of ThereminVox.  No hardware, camera, or audio is needed.
@@ -6,7 +6,7 @@ of ThereminVox.  No hardware, camera, or audio is needed.
 
 import pytest
 
-from thereminvox.mapping import (
+from utsuro_oto.mapping import (
     MIDI_MAX,
     MIDI_MIN,
     SCALE_TABLES,

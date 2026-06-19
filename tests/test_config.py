@@ -1,8 +1,8 @@
-"""Tests for thereminvox.config — instrument/scale persistence and validation."""
+"""Tests for utsuro_oto.config — instrument/scale persistence and validation."""
 
 import json
 
-from thereminvox.config import DEFAULT_ACTIVE_INSTRUMENTS
+from utsuro_oto.config import DEFAULT_ACTIVE_INSTRUMENTS
 
 # ── Scale getters/setters ─────────────────────────────────────────────
 

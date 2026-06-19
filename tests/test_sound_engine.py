@@ -1,4 +1,4 @@
-"""Tests for thereminvox.sound_engine — offline FluidSynth renderer + SDK pump.
+"""Tests for utsuro_oto.sound_engine — offline FluidSynth renderer + SDK pump.
 
 Architecture under test:
 - FluidSynth renders PCM offline (get_samples, no audio driver opened).
@@ -15,8 +15,8 @@ from unittest.mock import MagicMock, patch
 
 import numpy as np
 
-from thereminvox.fluidsynth_check import FluidSynthProbeResult
-from thereminvox.sound_engine import CHAN, SoundEngine
+from utsuro_oto.fluidsynth_check import FluidSynthProbeResult
+from utsuro_oto.sound_engine import CHAN, SoundEngine
 
 # ── Test helpers ─────────────────────────────────────────────────────────────
 
@@ -52,11 +52,11 @@ def _make_engine_with_mocks(instrument: str = "flute"):
     mock_preset = _make_mock_preset()
 
     with (
-        patch("thereminvox.sound_engine.probe_fluidsynth", return_value=probe_ok),
-        patch("thereminvox.sound_engine.fluidsynth", mock_fs),
-        patch("thereminvox.sound_engine.resolve_soundfont", return_value="/fake/Merlin.sf2"),
+        patch("utsuro_oto.sound_engine.probe_fluidsynth", return_value=probe_ok),
+        patch("utsuro_oto.sound_engine.fluidsynth", mock_fs),
+        patch("utsuro_oto.sound_engine.resolve_soundfont", return_value="/fake/Merlin.sf2"),
         patch(
-            "thereminvox.sound_engine.get_best_preset_match_for_name",
+            "utsuro_oto.sound_engine.get_best_preset_match_for_name",
             return_value=(mock_preset, 0.9),
         ),
     ):
@@ -85,7 +85,7 @@ def _make_mock_media(rate: int = 16000) -> MagicMock:
 class TestSoundEngineNoFluidSynth:
     def _engine(self) -> SoundEngine:
         probe_fail = FluidSynthProbeResult(False, "test: bundled fluidsynth not available")
-        with patch("thereminvox.sound_engine.probe_fluidsynth", return_value=probe_fail):
+        with patch("utsuro_oto.sound_engine.probe_fluidsynth", return_value=probe_fail):
             return SoundEngine()
 
     def test_ok_is_false(self):
@@ -109,7 +109,7 @@ class TestSoundEngineNoFluidSynth:
         self._engine().attach_media(MagicMock())  # must not raise
 
     def test_self_test_no_op(self, monkeypatch):
-        import thereminvox.sound_engine as se
+        import utsuro_oto.sound_engine as se
         monkeypatch.setattr(se, "_AUDIO_TEST", True)
         self._engine().self_test()  # must not raise
 
@@ -232,7 +232,7 @@ class TestSoundEngineHappyPath:
 
     def test_self_test_plays_and_ends_note(self, monkeypatch):
         """self_test must start a note, wait, then stop it."""
-        import thereminvox.sound_engine as se
+        import utsuro_oto.sound_engine as se
         monkeypatch.setattr(se, "_AUDIO_TEST", True)
         monkeypatch.setattr(se, "_SELF_TEST_DURATION", 0.0)  # skip sleep
 
@@ -247,7 +247,7 @@ class TestSoundEngineHappyPath:
 
     def test_self_test_skipped_when_audio_test_false(self, monkeypatch):
         """THEREMINVOX_AUDIO_TEST=0 must suppress the tone entirely."""
-        import thereminvox.sound_engine as se
+        import utsuro_oto.sound_engine as se
         monkeypatch.setattr(se, "_AUDIO_TEST", False)
 
         engine, mock_synth = _make_engine_with_mocks()
@@ -260,7 +260,7 @@ class TestSoundEngineHappyPath:
 
     def test_self_test_no_op_without_attach(self, monkeypatch):
         """self_test is skipped when attach_media has not been called yet."""
-        import thereminvox.sound_engine as se
+        import utsuro_oto.sound_engine as se
         monkeypatch.setattr(se, "_AUDIO_TEST", True)
         monkeypatch.setattr(se, "_SELF_TEST_DURATION", 0.0)
 

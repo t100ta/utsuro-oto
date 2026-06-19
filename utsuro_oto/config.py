@@ -1,4 +1,4 @@
-"""Runtime configuration for ThereminVox.
+"""Runtime configuration for UtsuroOto（空ろ音）.
 
 Stores active instruments and active scale, persisted to ``config.json``
 next to this file.  Thread-safe getters/setters are exposed so the dashboard
@@ -13,7 +13,7 @@ import threading
 from pathlib import Path
 from typing import List
 
-from thereminvox.mapping import SCALE_TABLES
+from utsuro_oto.mapping import SCALE_TABLES
 
 # ── All available GM instrument names (scamp-compatible) ───────────
 ALL_INSTRUMENTS: List[str] = [

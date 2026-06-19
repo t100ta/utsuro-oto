@@ -1,4 +1,4 @@
-"""Tests for thereminvox.hand_tracker — MediaPipe coordinate normalization.
+"""Tests for utsuro_oto.hand_tracker — MediaPipe coordinate normalization.
 
 MediaPipe is mocked so these tests run without loading the full model.
 """
@@ -8,14 +8,14 @@ from unittest.mock import MagicMock, patch
 import numpy as np
 import pytest
 
-from thereminvox.hand_tracker import HandTracker
+from utsuro_oto.hand_tracker import HandTracker
 
 # ── Fixtures ──────────────────────────────────────────────────────────
 
 @pytest.fixture()
 def tracker():
     """HandTracker with mp_hands.Hands fully mocked (no model loading)."""
-    with patch("thereminvox.hand_tracker.mp_hands") as mock_mp_hands:
+    with patch("utsuro_oto.hand_tracker.mp_hands") as mock_mp_hands:
         mock_mp_hands.Hands.return_value = MagicMock(name="hands_model")
         # HandLandmark enums — provide the index values MediaPipe uses
         mock_mp_hands.HandLandmark.MIDDLE_FINGER_PIP = 10

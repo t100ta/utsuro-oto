@@ -27,14 +27,14 @@ run = "uv run ruff format --check ."
 
 [tasks.typecheck]
 description = "Type-check with mypy"
-run = "uv run mypy thereminvox"
+run = "uv run mypy utsuro_oto"
 
 [tasks.check]
 description = "Run lint + typecheck + tests"
-run = ["uv run ruff check .", "uv run mypy thereminvox", "uv run pytest"]
+run = ["uv run ruff check .", "uv run mypy utsuro_oto", "uv run pytest"]
 
 [tasks.app]
-description = "Launch ThereminVox (connects to Reachy Mini on the network)"
+description = "Launch UtsuroOto（空ろ音）(connects to Reachy Mini on the network)"
 run = "uv run python main.py"
 
 [tasks.app-check]

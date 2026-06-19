@@ -1,11 +1,11 @@
-"""Tests for thereminvox.utils — geometry helpers."""
+"""Tests for utsuro_oto.utils — geometry helpers."""
 
 import math
 
 import numpy as np
 import pytest
 
-from thereminvox.utils import allow_multiturn, angle_diff, finger_orientation_deg
+from utsuro_oto.utils import allow_multiturn, angle_diff, finger_orientation_deg
 
 # ── finger_orientation_deg ────────────────────────────────────────────
 

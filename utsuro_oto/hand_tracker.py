@@ -5,12 +5,12 @@ Returns normalized coordinates in [-1, 1] for each landmark.
 
 Environment variables::
 
-    THEREMINVOX_FRAME_IS_RGB      Set to "1" if the camera backend already
+    UTSURO_OTO_FRAME_IS_RGB      Set to "1" if the camera backend already
                                   delivers RGB frames (skips BGR→RGB conversion
                                   to avoid double-inversion of colours).
-    THEREMINVOX_MODEL_COMPLEXITY  MediaPipe model complexity 0 (fast, default)
+    UTSURO_OTO_MODEL_COMPLEXITY  MediaPipe model complexity 0 (fast, default)
                                   or 1 (more accurate, higher CPU).
-    THEREMINVOX_MIN_DET_CONF      MediaPipe min_detection_confidence (0.0-1.0,
+    UTSURO_OTO_MIN_DET_CONF      MediaPipe min_detection_confidence (0.0-1.0,
                                   default 0.5).  Lower values detect more in
                                   poor lighting at the cost of more false positives.
 """
@@ -23,9 +23,9 @@ import mediapipe as mp
 import numpy as np
 
 # ── Environment-variable configuration ──────────────────────────────────────
-_FRAME_IS_RGB       = os.environ.get("THEREMINVOX_FRAME_IS_RGB",       "0") == "1"
-_MODEL_COMPLEXITY   = int(os.environ.get("THEREMINVOX_MODEL_COMPLEXITY", "0"))
-_MIN_DET_CONF       = float(os.environ.get("THEREMINVOX_MIN_DET_CONF",   "0.5"))
+_FRAME_IS_RGB       = os.environ.get("UTSURO_OTO_FRAME_IS_RGB",       "0") == "1"
+_MODEL_COMPLEXITY   = int(os.environ.get("UTSURO_OTO_MODEL_COMPLEXITY", "0"))
+_MIN_DET_CONF       = float(os.environ.get("UTSURO_OTO_MIN_DET_CONF",   "0.5"))
 
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
@@ -42,7 +42,7 @@ class HandTracker:
             nb_hands: Maximum number of hands to detect.
             model_complexity: 0 = fast/lightweight (recommended for Wireless CM4),
                               1 = more accurate.  Overridden by
-                              ``THEREMINVOX_MODEL_COMPLEXITY`` env var.
+                              ``UTSURO_OTO_MODEL_COMPLEXITY`` env var.
 
         """
         complexity = model_complexity  # may be overridden by env via default arg

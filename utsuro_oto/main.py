@@ -1,4 +1,4 @@
-"""ThereminVox — play Reachy Mini like a theremin using hand-tracking.
+"""UtsuroOto（空ろ音）— play Reachy Mini like a theremin using hand-tracking.
 
 Architecture (2 threads + main thread):
   Vision thread  — camera frames → MediaPipe → smoothed hand position
@@ -26,7 +26,7 @@ from fastapi.responses import HTMLResponse, StreamingResponse
 from reachy_mini import ReachyMini, ReachyMiniApp
 from scipy.spatial.transform import Rotation as R
 
-from thereminvox.config import (
+from utsuro_oto.config import (
     ALL_SCALES,
     get_active_instruments,
     get_current_instrument,
@@ -34,16 +34,16 @@ from thereminvox.config import (
     set_instrument_idx,
     set_scale,
 )
-from thereminvox.hand_tracker import HandTracker
-from thereminvox.mapping import (
+from utsuro_oto.hand_tracker import HandTracker
+from utsuro_oto.mapping import (
     EMAFilter,
     HysteresisQuantizer,
     _aff,
     build_scale_notes,
     midi_to_name,
 )
-from thereminvox.sound_engine import SoundEngine
-from thereminvox.utils import allow_multiturn
+from utsuro_oto.sound_engine import SoundEngine
+from utsuro_oto.utils import allow_multiturn
 
 # ── Dashboard HTML ──────────────────────────────────────────────────
 _DASHBOARD_HTML = """<!DOCTYPE html>
@@ -51,7 +51,7 @@ _DASHBOARD_HTML = """<!DOCTYPE html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width">
-<title>ThereminVox</title>
+<title>UtsuroOto</title>
 <style>
 *{box-sizing:border-box}
 body{font-family:system-ui,sans-serif;background:#1a1a2e;color:#eee;margin:0;padding:16px;max-width:640px}
@@ -67,7 +67,7 @@ img{width:100%;border-radius:8px;margin-top:8px}
 </style>
 </head>
 <body>
-<h1>ThereminVox</h1>
+<h1>UtsuroOto（空ろ音）</h1>
 <div class="card">
   <div class="sub">Now playing</div>
   <div class="note" id="note">—</div>
@@ -122,7 +122,7 @@ VISION_WIDTH = 640
 VISION_HEIGHT = 360
 
 
-class Thereminvox(ReachyMiniApp):
+class UtsuroOto(ReachyMiniApp):
     """Reachy Mini theremin app — hand X → pitch, hand Y → volume."""
 
     custom_app_url: str | None = "http://0.0.0.0:8042"
@@ -149,8 +149,8 @@ class Thereminvox(ReachyMiniApp):
         initial_instr = get_current_instrument()
         self._sound = SoundEngine(initial_instrument=initial_instr)
         if not self._sound.ok:
-            print(f"[ThereminVox] WARNING: FluidSynth unavailable — {self._sound.error}")
-            print("[ThereminVox] Sound will be disabled; head tracking still works.")
+            print(f"[UtsuroOto] WARNING: FluidSynth unavailable — {self._sound.error}")
+            print("[UtsuroOto] Sound will be disabled; head tracking still works.")
 
         # ── Status payload (read by dashboard) ────────────────────
         self._status: dict[str, Any] = {
@@ -405,7 +405,7 @@ class Thereminvox(ReachyMiniApp):
 
     def run(self, reachy_mini: ReachyMini, stop_event: threading.Event) -> None:
         print("=" * 60)
-        print("  ThereminVox — hand tracking theremin")
+        print("  UtsuroOto（空ろ音）— hand tracking theremin")
         print(f"  FluidSynth: {'OK' if self._sound.ok else 'UNAVAILABLE'}")
         print(f"  Scale:      {get_scale()}")
         print(f"  Instrument: {get_current_instrument()}")
@@ -444,7 +444,7 @@ class Thereminvox(ReachyMiniApp):
             # shutdown() stops the pump thread and calls media.stop_playing().
             self._sound.shutdown()
             reachy_mini.disable_motors()
-            print("[ThereminVox] Stopped cleanly.")
+            print("[UtsuroOto] Stopped cleanly.")
 
 
 # ── Annotation helper (not in separate file to keep deps minimal) ────
@@ -470,7 +470,7 @@ def _annotate_frame(
 
 
 if __name__ == "__main__":
-    app = Thereminvox()
+    app = UtsuroOto()
     try:
         app.wrapped_run()
     except KeyboardInterrupt:

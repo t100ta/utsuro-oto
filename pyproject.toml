@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 
 [project]
-name = "thereminvox"
+name = "utsuro-oto"
 version = "0.1.0"
 description = "Play Reachy Mini like a theremin — hand position controls pitch and volume via camera tracking"
 readme = "README.md"
@@ -20,7 +20,7 @@ dependencies = [
 keywords = ["reachy-mini-app"]
 
 [project.entry-points."reachy_mini_apps"]
-thereminvox = "thereminvox.main:Thereminvox"
+utsuro-oto = "utsuro_oto.main:UtsuroOto"
 
 [tool.setuptools]
 package-dir = { "" = "." }
@@ -30,7 +30,7 @@ include-package-data = true
 where = ["."]
 
 [tool.setuptools.package-data]
-thereminvox = ["**/*"] # Also include all non-.py files
+utsuro_oto = ["**/*"] # Also include all non-.py files
 
 # ── Development dependencies (uv-native; invisible to robot installer) ──
 [dependency-groups]
@@ -77,5 +77,5 @@ indent-style = "space"
 # ── Type checker ─────────────────────────────────────────────────────
 [tool.mypy]
 python_version = "3.11"
-files = ["thereminvox"]
+files = ["utsuro_oto"]
 ignore_missing_imports = true   # cv2/mediapipe/scamp/fluidsynth have no stubs

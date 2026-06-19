@@ -1,5 +1,5 @@
 ---
-title: Thereminvox
+title: UtsuroOto
 emoji: 👋
 colorFrom: red
 colorTo: blue
@@ -11,7 +11,7 @@ tags:
  - reachy_mini_python_app
 ---
 
-# ThereminVox
+# UtsuroOto（空ろ音）
 
 **Play [Reachy Mini](https://www.pollen-robotics.com/reachy-mini/) like a theremin using hand tracking.**
 
@@ -56,7 +56,7 @@ Stand in front of Reachy Mini and hold one hand up in front of the camera.
 
 All 128 General MIDI instruments are available. Up to 8 can be active at once
 (`MAX_ACTIVE_INSTRUMENTS = 8`). Active selection and current scale are persisted to
-`thereminvox/config.json` across restarts.
+`utsuro_oto/config.json` across restarts.
 
 **MIDI range:** C3 (48) – C6 (84).
 
@@ -102,11 +102,11 @@ mise run install          # → uv sync --dev
 # Launch (connects to Reachy Mini)
 mise run app              # → uv run python main.py
 # or directly:
-python -m thereminvox.main
+python -m utsuro_oto.main
 ```
 
 **On the robot:** installed as a `reachy_mini_apps` plugin and launched from the
-Reachy Mini dashboard (entry point: `thereminvox = "thereminvox.main:Thereminvox"`).
+Reachy Mini dashboard (entry point: `utsuro-oto = "utsuro_oto.main:UtsuroOto"`).
 
 ---
 
@@ -130,21 +130,21 @@ The FastAPI dashboard is served by the SDK at **`http://0.0.0.0:8042`**.
 
 | Variable | Default | Description |
 |----------|---------|-------------|
-| `THEREMINVOX_FRAME_IS_RGB` | `0` | Set `1` if the camera backend already delivers RGB (skips BGR→RGB conversion) |
-| `THEREMINVOX_MODEL_COMPLEXITY` | `0` | MediaPipe model complexity: `0` (fast) or `1` (more accurate, higher CPU) |
-| `THEREMINVOX_MIN_DET_CONF` | `0.5` | MediaPipe min detection confidence (0.0–1.0). Lower detects more in poor lighting. |
-| `THEREMINVOX_SOUNDFONT` | `default` | Soundfont name or path. `default` uses Merlin.sf2 bundled with scamp. |
-| `THEREMINVOX_GAIN` | `0.5` | FluidSynth master gain (FluidSynth's own default 0.2 is quiet; raise to 1.0 if needed) |
-| `THEREMINVOX_AUDIO_TEST` | `1` | Set `0` to skip the 1.5 s startup self-test tone |
+| `UTSURO_OTO_FRAME_IS_RGB` | `0` | Set `1` if the camera backend already delivers RGB (skips BGR→RGB conversion) |
+| `UTSURO_OTO_MODEL_COMPLEXITY` | `0` | MediaPipe model complexity: `0` (fast) or `1` (more accurate, higher CPU) |
+| `UTSURO_OTO_MIN_DET_CONF` | `0.5` | MediaPipe min detection confidence (0.0–1.0). Lower detects more in poor lighting. |
+| `UTSURO_OTO_SOUNDFONT` | `default` | Soundfont name or path. `default` uses Merlin.sf2 bundled with scamp. |
+| `UTSURO_OTO_GAIN` | `0.5` | FluidSynth master gain (FluidSynth's own default 0.2 is quiet; raise to 1.0 if needed) |
+| `UTSURO_OTO_AUDIO_TEST` | `1` | Set `0` to skip the 1.5 s startup self-test tone |
 
-### Persisted runtime config (`thereminvox/config.json`)
+### Persisted runtime config (`utsuro_oto/config.json`)
 
 Updated on every dashboard change; loaded at startup. Keys:
 `active_instruments` (list), `active_scale` (string), `active_instrument_idx` (int).
 
 ### Tuning constants
 
-Key control-loop constants are defined in `thereminvox/main.py` (lines 109–122):
+Key control-loop constants are defined in `utsuro_oto/main.py` (lines 109–122):
 `AUDIO_FREQ_HZ`, `IDLE_TIMEOUT`, `DEAD_ZONE`, head-tracking PID gains, EMA `alpha`, etc.
 
 ---

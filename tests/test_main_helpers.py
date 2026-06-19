@@ -1,4 +1,4 @@
-"""Tests for the pure helper functions in thereminvox.main.
+"""Tests for the pure helper functions in utsuro_oto.main.
 
 Only hardware-free helpers are tested here.  The threaded control loops
 (_vision_loop, _audio_motion_loop, run) require a live Reachy Mini and
@@ -20,7 +20,7 @@ _PROBE_FAIL.error = "test: FluidSynth mocked away"
 @pytest.fixture(scope="module", autouse=True)
 def _mock_fluidsynth_at_import():
     """Ensure FluidSynth probe fails (no system lib needed) when importing main."""
-    with patch("thereminvox.fluidsynth_check.probe_fluidsynth", return_value=_PROBE_FAIL):
+    with patch("utsuro_oto.fluidsynth_check.probe_fluidsynth", return_value=_PROBE_FAIL):
         yield
 
 
@@ -29,7 +29,7 @@ def _mock_fluidsynth_at_import():
 class TestAnnotateFrame:
     @pytest.fixture(autouse=True)
     def _import_helper(self):
-        from thereminvox.main import _annotate_frame
+        from utsuro_oto.main import _annotate_frame
         self._annotate = _annotate_frame
 
     def _blank(self, h: int = 360, w: int = 640) -> np.ndarray:
@@ -94,7 +94,7 @@ class TestConfigEndpoint:
         from fastapi import FastAPI, Request
         from fastapi.testclient import TestClient
 
-        import thereminvox.config as cfg_mod
+        import utsuro_oto.config as cfg_mod
 
         app = FastAPI()
 
