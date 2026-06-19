@@ -1,38 +1,129 @@
 <!doctype html>
-<html>
+<html lang="en">
 
 <head>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width" />
-	<title> Thereminvox </title>
+	<title>ThereminVox</title>
 	<link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
+	<!-- ── Hero ──────────────────────────────────────────────── -->
 	<div class="hero">
 		<div class="hero-content">
-			<div class="app-icon">🤖⚡</div>
-			<h1> Thereminvox </h1>
-			<p class="tagline">Enter your tagline here</p>
+			<div class="app-icon">🎻🤖</div>
+			<h1>ThereminVox</h1>
+			<p class="tagline">Play Reachy Mini like a theremin — your hand controls pitch and volume in mid-air, no instrument needed.</p>
 		</div>
 	</div>
 
 	<div class="container">
+
+		<!-- ── Main card: preview + features ────────────────────── -->
 		<div class="main-card">
+
+			<!-- Simulated camera feed showing what hand detection looks like -->
 			<div class="app-preview">
 				<div class="preview-image">
-					<div class="camera-feed">🛠️</div>
+					<div class="camera-feed">📷</div>
+					<div class="detection-overlay">
+						<div class="bbox">🤚 Hand detected</div>
+						<div class="bbox">♩ E4 · pentatonic_major · flute</div>
+					</div>
 				</div>
 			</div>
-		</div>
-	</div>
 
+			<!-- Feature highlights using info-box grid -->
+			<div class="app-details">
+				<h2>Features</h2>
+				<div class="template-info">
+					<div class="info-box">
+						<h3>🖐️ Hand Control</h3>
+						<p>
+							Move your hand <strong>left/right</strong> to change pitch
+							(left&nbsp;=&nbsp;high, right&nbsp;=&nbsp;low — theremin convention, mirrored from camera).<br />
+							Move it <strong>up/down</strong> to control volume
+							(top&nbsp;=&nbsp;loud, bottom&nbsp;=&nbsp;silent).<br />
+							Remove your hand for &gt;1.5&nbsp;s → silence; robot head returns to neutral.
+						</p>
+					</div>
+					<div class="info-box">
+						<h3>🎵 Scales &amp; Instruments</h3>
+						<p>
+							<strong>6 scales:</strong> pentatonic major/minor, natural major/minor, blues, chromatic.<br />
+							<strong>8 GM timbres</strong> active by default — flute, violin, choir aahs, trumpet, oboe, warm pad, synth voice, shakuhachi.<br />
+							All <strong>128 General MIDI</strong> instruments available. MIDI range C3–C6.
+						</p>
+					</div>
+					<div class="info-box">
+						<h3>⚙️ Live Dashboard</h3>
+						<p>
+							Built-in web dashboard (port 8042) shows the live camera feed, current note name, and lets you switch scale and instrument on the fly.<br />
+							Settings persist to <code>config.json</code> across restarts.
+						</p>
+					</div>
+				</div>
+
+				<!-- How-to-use steps -->
+				<div class="how-to-use">
+					<h3>🎼 How to Play</h3>
+					<div class="steps">
+						<div class="step">
+							<div class="step-number">1</div>
+							<div>
+								<h4>Stand in front of Reachy Mini</h4>
+								<p>Position yourself so the robot's camera can clearly see your hand. Good lighting helps MediaPipe detect your palm reliably.</p>
+							</div>
+						</div>
+						<div class="step">
+							<div class="step-number">2</div>
+							<div>
+								<h4>Raise one hand and move left/right for pitch</h4>
+								<p>Sweep right-to-left for low-to-high pitch (mirrored like a real theremin). Notes snap to the active scale automatically — no out-of-tune notes.</p>
+							</div>
+						</div>
+						<div class="step">
+							<div class="step-number">3</div>
+							<div>
+								<h4>Move up/down to control volume</h4>
+								<p>Top of frame = loudest, bottom = silent. Hold steady on a note to sustain it; move smoothly to glide between notes. The robot head follows your hand.</p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div><!-- /.main-card -->
+
+		<!-- ── Install card ──────────────────────────────────────── -->
+		<div class="download-card">
+			<h2>Install on Your Reachy Mini</h2>
+			<p>ThereminVox runs as a <code>reachy_mini_apps</code> plugin on the robot — not in the browser. Install it once and launch it any time from the Reachy Mini dashboard.</p>
+
+			<div class="manual-option">
+				<h3>📦 Install via pip</h3>
+				<p>Run the following command on your Reachy Mini (or in your development environment):</p>
+				<div class="manual-install">
+					<code>pip install git+https://github.com/pollen-robotics/thereminvox.git</code>
+					<button class="copy-btn"
+						onclick="navigator.clipboard.writeText('pip install git+https://github.com/pollen-robotics/thereminvox.git')">Copy</button>
+				</div>
+				<p class="manual-steps">
+					After installation, restart the Reachy Mini dashboard — <strong>ThereminVox</strong> will appear as a launchable app.<br />
+					Entry point registered as: <code>thereminvox.main:Thereminvox</code>
+				</p>
+			</div>
+		</div>
+
+	</div><!-- /.container -->
+
+	<!-- ── Footer ────────────────────────────────────────────── -->
 	<div class="footer">
 		<p>
-			🤖 Thereminvox •
+			🎻 ThereminVox •
+			<a href="https://github.com/pollen-robotics/thereminvox" target="_blank">GitHub</a> •
 			<a href="https://github.com/pollen-robotics" target="_blank">Pollen Robotics</a> •
-			<a href="https://huggingface.co/spaces/pollen-robotics/reachy-mini-landing-page#apps" target="_blank">Browse More
-				Apps</a>
+			<a href="https://huggingface.co/spaces/pollen-robotics/reachy-mini-landing-page#apps" target="_blank">Browse More Apps</a>
 		</p>
 	</div>
 </body>
