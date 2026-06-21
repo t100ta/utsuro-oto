@@ -14,6 +14,7 @@ Design note:
   pitch is quantized via HysteresisQuantizer so that small trembling hands
   don't cause constant pitch changes at scale boundaries.
 """
+
 from __future__ import annotations
 
 from typing import Sequence
@@ -21,18 +22,18 @@ from typing import Sequence
 # ── Scale definitions (semitone offsets within one octave) ──────────
 _PENTATONIC_MAJOR = [0, 2, 4, 7, 9]
 _PENTATONIC_MINOR = [0, 3, 5, 7, 10]
-_NATURAL_MINOR    = [0, 2, 3, 5, 7, 8, 10]
-_NATURAL_MAJOR    = [0, 2, 4, 5, 7, 9, 11]
-_CHROMATIC        = list(range(12))
-_BLUES            = [0, 3, 5, 6, 7, 10]
+_NATURAL_MINOR = [0, 2, 3, 5, 7, 8, 10]
+_NATURAL_MAJOR = [0, 2, 4, 5, 7, 9, 11]
+_CHROMATIC = list(range(12))
+_BLUES = [0, 3, 5, 6, 7, 10]
 
 SCALE_TABLES: dict[str, list[int]] = {
     "pentatonic_major": _PENTATONIC_MAJOR,
     "pentatonic_minor": _PENTATONIC_MINOR,
-    "natural_minor":    _NATURAL_MINOR,
-    "natural_major":    _NATURAL_MAJOR,
-    "blues":            _BLUES,
-    "chromatic":        _CHROMATIC,
+    "natural_minor": _NATURAL_MINOR,
+    "natural_major": _NATURAL_MAJOR,
+    "blues": _BLUES,
+    "chromatic": _CHROMATIC,
 }
 
 MIDI_MIN = 48  # C3

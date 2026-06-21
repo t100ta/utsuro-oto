@@ -26,10 +26,12 @@ def _mock_fluidsynth_at_import():
 
 # ── _annotate_frame ────────────────────────────────────────────────────
 
+
 class TestAnnotateFrame:
     @pytest.fixture(autouse=True)
     def _import_helper(self):
         from utsuro_oto.main import _annotate_frame
+
         self._annotate = _annotate_frame
 
     def _blank(self, h: int = 360, w: int = 640) -> np.ndarray:
@@ -79,6 +81,7 @@ class TestAnnotateFrame:
 
 # ── POST /config — content-type agnostic ──────────────────────────────
 
+
 class TestConfigEndpoint:
     """The POST /config handler must accept JSON regardless of Content-Type.
 
@@ -124,12 +127,14 @@ class TestConfigEndpoint:
     def test_no_content_type_still_works(self, config_app):
         """Key regression: missing Content-Type must not return 422."""
         import json
+
         r = config_app.post("/config", content=json.dumps({"scale": "chromatic"}))
         assert r.status_code == 200
         assert r.json()["scale"] == "chromatic"
 
     def test_text_plain_content_type_works(self, config_app):
         import json
+
         r = config_app.post(
             "/config",
             content=json.dumps({"scale": "pentatonic_minor"}),

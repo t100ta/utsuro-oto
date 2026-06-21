@@ -2,6 +2,7 @@
 
 Adapted from pollen-robotics/hand_tracker_v2.
 """
+
 from __future__ import annotations
 
 import copy

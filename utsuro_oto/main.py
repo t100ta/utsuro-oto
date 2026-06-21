@@ -1,4 +1,4 @@
-"""UtsuroOto（空ろ音）— play Reachy Mini like a theremin using hand-tracking.
+"""UtsuroOto（虚空音）— play Reachy Mini like a theremin using hand-tracking.
 
 Architecture (2 threads + main thread):
   Vision thread  — camera frames → MediaPipe → smoothed hand position
@@ -13,6 +13,7 @@ Default mapping:
   X: -1 (right) → high pitch,  +1 (left) → low pitch  (theremin convention)
   Y: -1 (top)   → loud,        +1 (bottom) → silent
 """
+
 from __future__ import annotations
 
 import threading
@@ -21,8 +22,10 @@ from typing import Any
 
 import cv2
 import numpy as np
+from pathlib import Path
+
 from fastapi import Request
-from fastapi.responses import HTMLResponse, StreamingResponse
+from fastapi.responses import FileResponse, HTMLResponse, StreamingResponse
 from reachy_mini import ReachyMini, ReachyMiniApp
 from scipy.spatial.transform import Rotation as R
 
@@ -45,6 +48,9 @@ from utsuro_oto.mapping import (
 from utsuro_oto.sound_engine import SoundEngine
 from utsuro_oto.utils import allow_multiturn
 
+# ── Static assets ───────────────────────────────────────────────────
+_LOGO_PATH = Path(__file__).parent / "static" / "logo-dark.png"
+
 # ── Dashboard HTML ──────────────────────────────────────────────────
 _DASHBOARD_HTML = """<!DOCTYPE html>
 <html>
@@ -63,11 +69,13 @@ button:hover{background:#e94560;border-color:#e94560}
 button.on{background:#2a7a5a;border-color:#3ab;color:#fff}
 .note{font-size:1.8em;font-weight:700;color:#7df;min-height:2em;line-height:1.2}
 .sub{font-size:.8em;color:#89a;margin-bottom:4px}
+.logo{width:60%;max-width:280px;display:block;margin:0 auto 12px}
 img{width:100%;border-radius:8px;margin-top:8px}
 </style>
 </head>
 <body>
-<h1>UtsuroOto（空ろ音）</h1>
+<img class="logo" src="/logo.png" alt="UtsuroOto（虚空音）">
+<h1>UtsuroOto（虚空音）</h1>
 <div class="card">
   <div class="sub">Now playing</div>
   <div class="note" id="note">—</div>
@@ -107,16 +115,19 @@ setInterval(poll,400);
 </html>"""
 
 # ── Control constants ────────────────────────────────────────────────
-AUDIO_FREQ_HZ = 50          # control loop frequency
-DEAD_ZONE = 0.05            # ignore hand motion smaller than this (fraction of [-1,1])
-HEAD_PITCH_KP = 0.024       # head pitch gain (from hand_tracker_v2)
-HEAD_YAW_KP = 0.028         # head yaw gain
-HEAD_MAX_DELTA = 0.6        # max head rotation step per tick (radians)
+AUDIO_FREQ_HZ = 50  # control loop frequency
+DEAD_ZONE = 0.05  # ignore hand motion smaller than this (fraction of [-1,1])
+HEAD_PITCH_KP = 0.024  # head pitch gain (from hand_tracker_v2)
+HEAD_YAW_KP = 0.028  # head yaw gain
+HEAD_MAX_DELTA = 0.6  # max head rotation step per tick (radians)
 ANT_MAX_DELTA = np.radians(5)  # max antenna step per tick
-IDLE_TIMEOUT = 1.5          # seconds without hand before going silent/neutral
-MIDI_MIN = 48               # C3
-MIDI_MAX = 84               # C6
-AMP_DEAD_ZONE = 0.03        # amplitude below this → silence (avoid noisy low notes)
+IDLE_TIMEOUT = 1.5  # seconds without hand before going silent/neutral
+MIDI_MIN = 48  # C3
+MIDI_MAX = 84  # C6
+AMP_DEAD_ZONE = 0.03  # amplitude below this → silence (avoid noisy low notes)
+# Glide (portamento): EMA on quantized pitch → smooth legato transition between notes.
+# alpha=0.25 at 50 Hz gives a time constant of ~70 ms (balanced responsiveness).
+GLIDE_ALPHA = 0.25
 # Frame resolution for vision loop (lower = faster on Wireless CM4)
 VISION_WIDTH = 640
 VISION_HEIGHT = 360
@@ -136,14 +147,15 @@ class UtsuroOto(ReachyMiniApp):
 
         # ── Shared vision state (protected by _lock) ──────────────
         self._lock = threading.Lock()
-        self._hand_pos: np.ndarray | None = None   # (x, y) in [-1, 1]
+        self._hand_pos: np.ndarray | None = None  # (x, y) in [-1, 1]
         self._last_hand_seen: float = 0.0
         self._last_frame: np.ndarray | None = None  # BGR frame for MJPEG
 
         # ── Audio smoothing / quantization ─────────────────────────
-        self._ema_x = EMAFilter(alpha=0.15)
-        self._ema_y = EMAFilter(alpha=0.15)
-        self._quantizer = HysteresisQuantizer(hysteresis=0.4)
+        self._ema_x = EMAFilter(alpha=0.2)  # balanced: smooths hand jitter
+        self._ema_y = EMAFilter(alpha=0.2)  # while following intentional moves
+        self._quantizer = HysteresisQuantizer(hysteresis=0.5)  # wider dead-band at note edges
+        self._pitch_glide = EMAFilter(alpha=GLIDE_ALPHA)  # portamento: note→note glide
 
         # ── Sound engine ───────────────────────────────────────────
         initial_instr = get_current_instrument()
@@ -217,6 +229,10 @@ class UtsuroOto(ReachyMiniApp):
         def get_dashboard() -> HTMLResponse:
             return HTMLResponse(_DASHBOARD_HTML)
 
+        @self.settings_app.get("/logo.png")
+        def get_logo() -> FileResponse:
+            return FileResponse(_LOGO_PATH, media_type="image/png")
+
     # ── MJPEG helper ────────────────────────────────────────────────
 
     def _frame_generator(self):
@@ -231,10 +247,7 @@ class UtsuroOto(ReachyMiniApp):
             if not ok:
                 time.sleep(0.05)
                 continue
-            yield (
-                b"--frame\r\n"
-                b"Content-Type: image/jpeg\r\n\r\n" + jpeg.tobytes() + b"\r\n"
-            )
+            yield (b"--frame\r\nContent-Type: image/jpeg\r\n\r\n" + jpeg.tobytes() + b"\r\n")
             time.sleep(0.05)
 
     # ── Vision thread ────────────────────────────────────────────────
@@ -274,10 +287,10 @@ class UtsuroOto(ReachyMiniApp):
                     palm = np.array(hands[0]["palm"], dtype=float)
                     self._hand_pos = palm
                     self._last_hand_seen = now
-                else:
-                    # Slowly drift hand_pos back toward center when lost
-                    if self._hand_pos is not None:
-                        self._hand_pos = self._hand_pos * 0.9
+                # On detection dropout: hold the last known position unchanged.
+                # IDLE_TIMEOUT (1.5 s) handles genuine hand absence via time_since_hand.
+                # Previously drifting toward center caused spurious pitch movement
+                # on momentary MediaPipe detection losses at model_complexity=0.
                 self._last_frame = _annotate_frame(frame, hands)
 
             if now - debug_t >= 5.0:
@@ -296,10 +309,10 @@ class UtsuroOto(ReachyMiniApp):
         stop_event: threading.Event,
     ) -> None:
         """50 Hz control loop: hand pos → pitch/volume + head tracking."""
-        euler_rot = np.array([0.0, 0.0, 0.0])   # roll, pitch, yaw
+        euler_rot = np.array([0.0, 0.0, 0.0])  # roll, pitch, yaw
         head_pose = np.eye(4)
         prev_antennas = np.array([0.0, 0.0])
-        antennas: list[float] = [0.0, 0.0]      # always list[float] (allow_multiturn return type)
+        antennas: list[float] = [0.0, 0.0]  # always list[float] (allow_multiturn return type)
         is_idle = True
 
         print("[Audio/Motion] Starting 50 Hz control loop …")
@@ -320,6 +333,7 @@ class UtsuroOto(ReachyMiniApp):
                     self._ema_x.reset()
                     self._ema_y.reset()
                     self._quantizer.reset()
+                    self._pitch_glide.reset()
                     is_idle = True
                     self._status["playing"] = False
                     print("[Audio/Motion] Idle — hand lost.")
@@ -341,49 +355,58 @@ class UtsuroOto(ReachyMiniApp):
                 # X=-1 (right side of camera) → high pitch (theremin convention)
                 midi_float = _aff(sx, -1.0, 1.0, MIDI_MAX, MIDI_MIN)
 
-                # Quantize to active scale with hysteresis
+                # Quantize to active scale with hysteresis (discrete target note)
                 scale_notes = build_scale_notes(get_scale(), MIDI_MIN, MIDI_MAX)
-                pitch = self._quantizer.quantize(midi_float, scale_notes)
+                target = self._quantizer.quantize(midi_float, scale_notes)
+
+                # Portamento: EMA-glide from current sounding pitch toward target.
+                # This converts discrete quantizer steps into smooth continuous pitch
+                # movement without leaving the selected scale.
+                sounding = self._pitch_glide.update(float(target))
 
                 # Y → amplitude: top (-1) = loud, bottom (+1) = silent
                 amplitude = _aff(sy, -1.0, 1.0, 1.0, 0.0)
                 amplitude = float(np.clip(amplitude, 0.0, 1.0))
 
-                # Play or update sound
+                # Play or update sound using legato pitch-bend path (no re-attacks)
                 if amplitude > AMP_DEAD_ZONE and self._sound.ok:
                     instrument = get_current_instrument()
-                    self._sound.play_or_update(pitch, amplitude, instrument)
+                    self._sound.set_voice(sounding, amplitude, instrument)
                     self._status["playing"] = True
                 else:
                     self._sound.stop_note()
                     self._status["playing"] = False
 
-                # Update status for dashboard
-                self._status.update({
-                    "hand_detected": True,
-                    "hand_x": round(float(sx), 3),
-                    "hand_y": round(float(sy), 3),
-                    "pitch_midi": pitch,
-                    "pitch_name": midi_to_name(pitch),
-                    "amplitude": round(amplitude, 3),
-                    "instrument": get_current_instrument(),
-                    "scale": get_scale(),
-                })
+                # Update status for dashboard (show quantized target for readability)
+                self._status.update(
+                    {
+                        "hand_detected": True,
+                        "hand_x": round(float(sx), 3),
+                        "hand_y": round(float(sy), 3),
+                        "pitch_midi": target,
+                        "pitch_name": midi_to_name(target),
+                        "amplitude": round(amplitude, 3),
+                        "instrument": get_current_instrument(),
+                        "scale": get_scale(),
+                    }
+                )
 
                 # Head tracking — follow hand at low gain
-                error = np.array([0.0, 0.0]) - hand_pos   # error = center - pos
+                error = np.array([0.0, 0.0]) - hand_pos  # error = center - pos
                 error[np.abs(error) < DEAD_ZONE] = 0.0
                 error = np.clip(error, -HEAD_MAX_DELTA, HEAD_MAX_DELTA)
 
-                euler_rot += np.array([
-                    0.0,
-                    -HEAD_PITCH_KP * error[1],   # pitch: Y error
-                    HEAD_YAW_KP  * error[0],   # yaw:   X error
-                ])
+                euler_rot += np.array(
+                    [
+                        0.0,
+                        -HEAD_PITCH_KP * error[1],  # pitch: Y error
+                        HEAD_YAW_KP * error[0],  # yaw:   X error
+                    ]
+                )
                 euler_rot = np.clip(
                     euler_rot,
                     [0.0, -np.deg2rad(30), -np.deg2rad(170)],
-                    [0.0,  np.deg2rad(20),  np.deg2rad(170)],
+                    [0.0, np.deg2rad(20), np.deg2rad(170)],
                 )
 
                 antennas = allow_multiturn([0.0, 0.0], list(prev_antennas), ANT_MAX_DELTA)
@@ -405,7 +428,7 @@ class UtsuroOto(ReachyMiniApp):
 
     def run(self, reachy_mini: ReachyMini, stop_event: threading.Event) -> None:
         print("=" * 60)
-        print("  UtsuroOto（空ろ音）— hand tracking theremin")
+        print("  UtsuroOto（虚空音）— hand tracking theremin")
         print(f"  FluidSynth: {'OK' if self._sound.ok else 'UNAVAILABLE'}")
         print(f"  Scale:      {get_scale()}")
         print(f"  Instrument: {get_current_instrument()}")
@@ -448,6 +471,7 @@ class UtsuroOto(ReachyMiniApp):
 
 
 # ── Annotation helper (not in separate file to keep deps minimal) ────
+
 
 def _annotate_frame(
     frame: np.ndarray,

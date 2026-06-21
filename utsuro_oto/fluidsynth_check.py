@@ -8,6 +8,7 @@ because that is the binary actually used at runtime on the Reachy Mini.
 Falls back to the standalone ``pyFluidSynth`` package if the bundled copy is
 unavailable (e.g. in a minimal CI environment).
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -31,12 +32,14 @@ def probe_fluidsynth() -> FluidSynthProbeResult:
     # Prefer the bundled copy scamp loads at runtime (verified on Reachy Mini).
     try:
         from scamp._dependencies import fluidsynth  # type: ignore[import]
+
         if fluidsynth is None:
             raise ImportError("scamp._dependencies.fluidsynth is None")
         source = "bundled (scamp)"
     except Exception:
         try:
             import fluidsynth  # type: ignore[import]  # noqa: PLC0415
+
             source = "system (pyFluidSynth)"
         except Exception as exc:
             return FluidSynthProbeResult(False, f"FluidSynth not available: {exc}")

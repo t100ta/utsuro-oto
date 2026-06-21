@@ -19,6 +19,7 @@ from utsuro_oto.mapping import (
 
 # ── _aff (affine interpolation) ────────────────────────────────────
 
+
 class TestAff:
     def test_midpoint(self):
         assert _aff(0.5, 0.0, 1.0, 0.0, 100.0) == pytest.approx(50.0)
@@ -47,6 +48,7 @@ class TestAff:
 
 
 # ── EMAFilter ────────────────────────────────────────────────────────
+
 
 class TestEMAFilter:
     def test_first_sample_returned_unchanged(self):
@@ -151,6 +153,7 @@ class TestHysteresisQuantizer:
 
 # ── build_scale_notes ─────────────────────────────────────────────────
 
+
 class TestBuildScaleNotes:
     def test_pentatonic_major_is_sorted(self):
         notes = build_scale_notes("pentatonic_major")
@@ -198,14 +201,18 @@ class TestBuildScaleNotes:
 
 # ── midi_to_name ─────────────────────────────────────────────────────
 
+
 class TestMidiToName:
-    @pytest.mark.parametrize("midi,expected", [
-        (60, "C4"),
-        (48, "C3"),
-        (84, "C6"),
-        (61, "C♯4"),
-        (69, "A4"),
-        (57, "A3"),
-    ])
+    @pytest.mark.parametrize(
+        "midi,expected",
+        [
+            (60, "C4"),
+            (48, "C3"),
+            (84, "C6"),
+            (61, "C♯4"),
+            (69, "A4"),
+            (57, "A3"),
+        ],
+    )
     def test_known_notes(self, midi: int, expected: str):
         assert midi_to_name(midi) == expected

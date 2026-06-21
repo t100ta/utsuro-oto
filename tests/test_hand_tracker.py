@@ -12,6 +12,7 @@ from utsuro_oto.hand_tracker import HandTracker
 
 # ── Fixtures ──────────────────────────────────────────────────────────
 
+
 @pytest.fixture()
 def tracker():
     """HandTracker with mp_hands.Hands fully mocked (no model loading)."""
@@ -43,6 +44,7 @@ def _make_landmarks_list(mapping: dict[int, tuple[float, float]]) -> MagicMock:
 
 
 # ── _norm ──────────────────────────────────────────────────────────────
+
 
 class TestNorm:
     def test_center_maps_to_origin(self, tracker):
@@ -79,6 +81,7 @@ class TestNorm:
 
 # ── get_hands_positions ────────────────────────────────────────────────
 
+
 class TestGetHandsPositions:
     def _fake_frame(self):
         return np.zeros((480, 640, 3), dtype=np.uint8)
@@ -93,12 +96,14 @@ class TestGetHandsPositions:
 
     def test_returns_list_with_correct_keys(self, tracker):
         """Each hand dict must have palm, index_tip, index_mcp, middle keys."""
-        hand_lm = _make_landmarks_list({
-            10: (0.5, 0.3),  # MIDDLE_FINGER_PIP → palm
-            8:  (0.6, 0.2),  # INDEX_FINGER_TIP
-            5:  (0.55, 0.35), # INDEX_FINGER_MCP
-            12: (0.5, 0.15), # MIDDLE_FINGER_TIP
-        })
+        hand_lm = _make_landmarks_list(
+            {
+                10: (0.5, 0.3),  # MIDDLE_FINGER_PIP → palm
+                8: (0.6, 0.2),  # INDEX_FINGER_TIP
+                5: (0.55, 0.35),  # INDEX_FINGER_MCP
+                12: (0.5, 0.15),  # MIDDLE_FINGER_TIP
+            }
+        )
         fake_results = MagicMock()
         fake_results.multi_hand_landmarks = [hand_lm]
         tracker.hands.process.return_value = fake_results
@@ -111,12 +116,14 @@ class TestGetHandsPositions:
         assert set(hand.keys()) == {"palm", "index_tip", "index_mcp", "middle"}
 
     def test_all_values_are_ndarrays_in_range(self, tracker):
-        hand_lm = _make_landmarks_list({
-            10: (0.5, 0.3),
-            8:  (0.6, 0.2),
-            5:  (0.55, 0.35),
-            12: (0.5, 0.15),
-        })
+        hand_lm = _make_landmarks_list(
+            {
+                10: (0.5, 0.3),
+                8: (0.6, 0.2),
+                5: (0.55, 0.35),
+                12: (0.5, 0.15),
+            }
+        )
         fake_results = MagicMock()
         fake_results.multi_hand_landmarks = [hand_lm]
         tracker.hands.process.return_value = fake_results
@@ -142,12 +149,14 @@ class TestGetHandsPositions:
     def test_palm_coordinate_from_middle_finger_pip(self, tracker):
         """Palm is derived from MIDDLE_FINGER_PIP (idx=10) — verify the mapping."""
         # Put MIDDLE_FINGER_PIP at image x=0.0, y=0.0 → norm gives (+1, -1)
-        hand_lm = _make_landmarks_list({
-            10: (0.0, 0.0),
-            8:  (0.5, 0.5),
-            5:  (0.5, 0.5),
-            12: (0.5, 0.5),
-        })
+        hand_lm = _make_landmarks_list(
+            {
+                10: (0.0, 0.0),
+                8: (0.5, 0.5),
+                5: (0.5, 0.5),
+                12: (0.5, 0.5),
+            }
+        )
         fake_results = MagicMock()
         fake_results.multi_hand_landmarks = [hand_lm]
         tracker.hands.process.return_value = fake_results
@@ -155,5 +164,5 @@ class TestGetHandsPositions:
         result = tracker.get_hands_positions(self._fake_frame())
         assert result is not None
         palm = result[0]["palm"]
-        assert palm[0] == pytest.approx(1.0)   # x flipped
+        assert palm[0] == pytest.approx(1.0)  # x flipped
         assert palm[1] == pytest.approx(-1.0)  # y top

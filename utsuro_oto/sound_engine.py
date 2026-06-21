@@ -29,6 +29,7 @@ Environment variables::
     UTSURO_OTO_AUDIO_TEST  Set to "0" to skip the 1.5 s startup self-test tone
                             (default: enabled).
 """
+
 from __future__ import annotations
 
 import os
@@ -59,8 +60,8 @@ except Exception:
     get_best_preset_match_for_name = None  # type: ignore[assignment]
 
 # ── Environment-variable configuration ──────────────────────────────────────
-_SOUNDFONT  = os.environ.get("UTSURO_OTO_SOUNDFONT",  "default")
-_GAIN       = float(os.environ.get("UTSURO_OTO_GAIN", "0.5"))   # FluidSynth default 0.2 is too quiet
+_SOUNDFONT = os.environ.get("UTSURO_OTO_SOUNDFONT", "default")
+_GAIN = float(os.environ.get("UTSURO_OTO_GAIN", "0.5"))  # FluidSynth default 0.2 is too quiet
 _AUDIO_TEST = os.environ.get("UTSURO_OTO_AUDIO_TEST", "1") != "0"
 
 # Duration of the startup self-test tone in seconds.
@@ -72,10 +73,12 @@ _SELF_TEST_DURATION: float = 1.5
 _SOUNDFONT_KEY = "general_midi" if _SOUNDFONT == "default" else _SOUNDFONT
 
 # ── PCM pump constants ───────────────────────────────────────────────────────
-OUTPUT_RATE     = 16_000   # Hz — matches reachy_mini AudioBase.SAMPLE_RATE
-OUTPUT_CHANNELS = 2        # stereo — matches reachy_mini AudioBase.CHANNELS
-PUMP_CHUNK      = 1024     # FluidSynth samples per pump iteration
-CHAN            = 0        # FluidSynth MIDI channel used for the theremin voice
+OUTPUT_RATE = 16_000  # Hz — matches reachy_mini AudioBase.SAMPLE_RATE
+OUTPUT_CHANNELS = 2  # stereo — matches reachy_mini AudioBase.CHANNELS
+PUMP_CHUNK = 1024  # FluidSynth samples per pump iteration
+CHAN = 0  # FluidSynth MIDI channel used for the theremin voice
+PITCH_BEND_RANGE = 24  # ±semitones of pitch bend (covers MIDI 42–90 from BASE_NOTE)
+BASE_NOTE = 66  # F#4: center of [48, 84] play range — the one held noteon
 
 
 class SoundEngine:
@@ -155,10 +158,7 @@ class SoundEngine:
         try:
             rate = media.audio.get_output_audio_samplerate()
             if rate != OUTPUT_RATE:
-                print(
-                    f"[Audio] WARNING: media output rate {rate} Hz ≠ {OUTPUT_RATE} Hz "
-                    "— audio may be pitched wrong."
-                )
+                print(f"[Audio] WARNING: media output rate {rate} Hz ≠ {OUTPUT_RATE} Hz — audio may be pitched wrong.")
         except Exception:
             pass
 
@@ -171,9 +171,7 @@ class SoundEngine:
         self._media = media
         print("[Audio] media.start_playing() OK — PCM pump starting …")
         self._running = True
-        self._pump_thread = threading.Thread(
-            target=self._pump_loop, daemon=True, name="AudioPump"
-        )
+        self._pump_thread = threading.Thread(target=self._pump_loop, daemon=True, name="AudioPump")
         self._pump_thread.start()
 
     def self_test(self) -> None:
@@ -184,10 +182,7 @@ class SoundEngine:
         """
         if not self.ok or not _AUDIO_TEST or self._media is None:
             return
-        print(
-            f"[Audio] self-test: playing {_SELF_TEST_DURATION:.1f} s tone (C4) "
-            "… (UTSURO_OTO_AUDIO_TEST=0 to skip)"
-        )
+        print(f"[Audio] self-test: playing {_SELF_TEST_DURATION:.1f} s tone (C4) … (UTSURO_OTO_AUDIO_TEST=0 to skip)")
         try:
             self.play_or_update(60, 0.8, self._current_instrument or "flute")
             time.sleep(_SELF_TEST_DURATION)
@@ -215,6 +210,27 @@ class SoundEngine:
             return
         with self._synth_lock:
             self._play_or_update_locked(pitch, amplitude, instrument)
+
+    def set_voice(self, pitch_float: float, amplitude: float, instrument: str) -> None:
+        """Update the sustained theremin voice without retriggering.
+
+        Unlike ``play_or_update``, pitch changes are applied via MIDI pitch
+        bend rather than noteoff → noteon, producing a continuous glide instead
+        of discrete re-attacks.  A single note (``BASE_NOTE``) is held for the
+        lifetime of a playing session; only instrument changes or silence → sound
+        transitions cause a new noteon.
+
+        Args:
+            pitch_float: Continuous MIDI pitch (may be fractional, e.g. 61.4).
+                         Converted to a pitch bend offset from ``BASE_NOTE``.
+            amplitude:   Volume in [0.0, 1.0] (mapped to CC 11 expression).
+            instrument:  Instrument name string (GM preset, e.g. ``"flute"``).
+
+        """
+        if self._synth is None:
+            return
+        with self._synth_lock:
+            self._set_voice_locked(pitch_float, amplitude, instrument)
 
     def stop_note(self) -> None:
         """Silence the current note (call when hand disappears)."""
@@ -304,17 +320,39 @@ class SoundEngine:
         return (match.bank, match.preset)
 
     def _apply_preset(self, name: str) -> None:
-        """Resolve instrument name and issue a MIDI program_select."""
+        """Resolve instrument name and issue a MIDI program_select.
+
+        Also sets pitch bend sensitivity to ±PITCH_BEND_RANGE semitones via
+        RPN 0 so that ``set_voice`` can use the full theremin pitch range.
+        """
         bp = self._resolve_preset(name)
         if bp is None or self._sfid is None or self._synth is None:
             return
         bank, preset = bp
         try:
             self._synth.program_select(CHAN, self._sfid, bank, preset)
-            self._synth.cc(CHAN, 7, 127)   # CC 7 = channel volume: keep at max
+            self._synth.cc(CHAN, 7, 127)  # CC 7 = channel volume: keep at max
+            self._set_pitch_bend_range()
             self._current_instrument = name
         except Exception as exc:
             print(f"[Audio] program_select failed for {name!r}: {exc}")
+
+    def _set_pitch_bend_range(self) -> None:
+        """Configure pitch bend sensitivity to ±PITCH_BEND_RANGE semitones via RPN 0.
+
+        Sequence: select RPN 0 (pitch bend sensitivity), set data, null RPN.
+        This must be called after every program_select because some soundfonts
+        reset the bend range on preset change.
+        """
+        s = self._synth
+        if s is None:
+            return
+        s.cc(CHAN, 101, 0)  # RPN MSB = 0
+        s.cc(CHAN, 100, 0)  # RPN LSB = 0  → Pitch Bend Sensitivity
+        s.cc(CHAN, 6, PITCH_BEND_RANGE)  # Data Entry MSB = semitones
+        s.cc(CHAN, 38, 0)  # Data Entry LSB = 0 cents
+        s.cc(CHAN, 101, 127)  # null RPN
+        s.cc(CHAN, 100, 127)  # null RPN
 
     def _play_or_update_locked(self, pitch: int, amplitude: float, instrument: str) -> None:
         """Must be called with ``self._synth_lock`` held."""
@@ -343,6 +381,45 @@ class SoundEngine:
                 pass
 
         # Smooth volume via MIDI expression (CC 11).
+        vel = int(np.clip(amplitude, 0.0, 1.0) * 127)
+        try:
+            self._synth.cc(CHAN, 11, vel)
+        except Exception:
+            pass
+
+    def _set_voice_locked(self, pitch_float: float, amplitude: float, instrument: str) -> None:
+        """Legato pitch-bend update.  Must be called with ``self._synth_lock`` held."""
+        assert self._synth is not None
+
+        # Switch instrument: reprogram and reset note so the new preset sounds.
+        if instrument != self._current_instrument:
+            self._apply_preset(instrument)  # also re-sets pitch bend range
+            if self._current_pitch is not None:
+                try:
+                    self._synth.noteoff(CHAN, self._current_pitch)
+                except Exception:
+                    pass
+                self._current_pitch = None
+
+        # Start voice once (silence → sound transition); never retrigger on pitch change.
+        if self._current_pitch is None and amplitude > 0.0:
+            try:
+                self._synth.noteon(CHAN, BASE_NOTE, 127)
+                self._current_pitch = BASE_NOTE
+            except Exception:
+                pass
+
+        # Apply pitch bend so the sounding pitch tracks pitch_float continuously.
+        # scamp pitch_bend convention: val=0 → no bend; val=±8192 → ±PITCH_BEND_RANGE st.
+        if self._current_pitch is not None:
+            bend_st = float(np.clip(pitch_float - BASE_NOTE, -PITCH_BEND_RANGE, PITCH_BEND_RANGE))
+            bend_val = int(round(bend_st / PITCH_BEND_RANGE * 8192))
+            try:
+                self._synth.pitch_bend(CHAN, bend_val)
+            except Exception:
+                pass
+
+        # Volume via CC 11 (expression) — same as play_or_update.
         vel = int(np.clip(amplitude, 0.0, 1.0) * 127)
         try:
             self._synth.cc(CHAN, 11, vel)

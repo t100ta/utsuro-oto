@@ -9,6 +9,7 @@ from utsuro_oto.utils import allow_multiturn, angle_diff, finger_orientation_deg
 
 # ── finger_orientation_deg ────────────────────────────────────────────
 
+
 class TestFingerOrientationDeg:
     def test_pointing_straight_up(self):
         """MCP directly below TIP → angle ≈ 0°."""
@@ -48,6 +49,7 @@ class TestFingerOrientationDeg:
 
 # ── angle_diff ────────────────────────────────────────────────────────
 
+
 class TestAngleDiff:
     def test_zero_diff(self):
         assert angle_diff(0.0, 0.0) == pytest.approx(0.0)
@@ -75,6 +77,7 @@ class TestAngleDiff:
     def test_result_always_in_minus_pi_to_pi(self):
         for _ in range(50):
             import random
+
             a = random.uniform(-10, 10)
             b = random.uniform(-10, 10)
             result = angle_diff(a, b)
@@ -82,6 +85,7 @@ class TestAngleDiff:
 
 
 # ── allow_multiturn ────────────────────────────────────────────────────
+
 
 class TestAllowMultiturn:
     def test_no_motion_when_already_at_target(self):

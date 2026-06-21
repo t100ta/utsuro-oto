@@ -16,9 +16,10 @@ from unittest.mock import MagicMock, patch
 import numpy as np
 
 from utsuro_oto.fluidsynth_check import FluidSynthProbeResult
-from utsuro_oto.sound_engine import CHAN, SoundEngine
+from utsuro_oto.sound_engine import BASE_NOTE, CHAN, PITCH_BEND_RANGE, SoundEngine
 
 # ── Test helpers ─────────────────────────────────────────────────────────────
+
 
 def _make_mock_fluidsynth():
     """Return (mock_fs_module, mock_synth_instance)."""
@@ -64,11 +65,13 @@ def _make_engine_with_mocks(instrument: str = "flute"):
 
     # Patches are gone but the synth object persists; keep preset cache populated
     # so later calls to _resolve_preset never hit the real scamp function.
-    engine._preset_cache.update({
-        "flute":      (0, 73),
-        "violin":     (0, 40),
-        "choir_aahs": (0, 52),
-    })
+    engine._preset_cache.update(
+        {
+            "flute": (0, 73),
+            "violin": (0, 40),
+            "choir_aahs": (0, 52),
+        }
+    )
     return engine, mock_synth
 
 
@@ -81,6 +84,7 @@ def _make_mock_media(rate: int = 16000) -> MagicMock:
 
 
 # ── FluidSynth unavailable (no-op path) ──────────────────────────────────────
+
 
 class TestSoundEngineNoFluidSynth:
     def _engine(self) -> SoundEngine:
@@ -110,11 +114,13 @@ class TestSoundEngineNoFluidSynth:
 
     def test_self_test_no_op(self, monkeypatch):
         import utsuro_oto.sound_engine as se
+
         monkeypatch.setattr(se, "_AUDIO_TEST", True)
         self._engine().self_test()  # must not raise
 
 
 # ── FluidSynth available — note lifecycle ─────────────────────────────────────
+
 
 class TestSoundEngineHappyPath:
     def test_ok_is_true(self):
@@ -200,8 +206,10 @@ class TestSoundEngineHappyPath:
         media = _make_mock_media()
 
         pushed = threading.Event()
+
         def _capture(data: object) -> None:
             pushed.set()
+
         media.push_audio_sample.side_effect = _capture
 
         engine.attach_media(media)
@@ -233,6 +241,7 @@ class TestSoundEngineHappyPath:
     def test_self_test_plays_and_ends_note(self, monkeypatch):
         """self_test must start a note, wait, then stop it."""
         import utsuro_oto.sound_engine as se
+
         monkeypatch.setattr(se, "_AUDIO_TEST", True)
         monkeypatch.setattr(se, "_SELF_TEST_DURATION", 0.0)  # skip sleep
 
@@ -248,6 +257,7 @@ class TestSoundEngineHappyPath:
     def test_self_test_skipped_when_audio_test_false(self, monkeypatch):
         """THEREMINVOX_AUDIO_TEST=0 must suppress the tone entirely."""
         import utsuro_oto.sound_engine as se
+
         monkeypatch.setattr(se, "_AUDIO_TEST", False)
 
         engine, mock_synth = _make_engine_with_mocks()
@@ -261,6 +271,7 @@ class TestSoundEngineHappyPath:
     def test_self_test_no_op_without_attach(self, monkeypatch):
         """self_test is skipped when attach_media has not been called yet."""
         import utsuro_oto.sound_engine as se
+
         monkeypatch.setattr(se, "_AUDIO_TEST", True)
         monkeypatch.setattr(se, "_SELF_TEST_DURATION", 0.0)
 
@@ -268,3 +279,106 @@ class TestSoundEngineHappyPath:
         engine.self_test()  # no media attached → must be a no-op
 
         mock_synth.noteon.assert_not_called()
+
+
+# ── set_voice — legato pitch-bend path ───────────────────────────────────────
+
+
+class TestSoundEngineSetVoice:
+    """set_voice holds one noteon and uses pitch_bend for continuous pitch change."""
+
+    def test_first_call_triggers_noteon_on_base_note(self):
+        engine, mock_synth = _make_engine_with_mocks()
+        engine.set_voice(BASE_NOTE, 0.8, "flute")
+        mock_synth.noteon.assert_called_once_with(CHAN, BASE_NOTE, 127)
+        assert engine._current_pitch == BASE_NOTE
+
+    def test_first_call_sends_pitch_bend_zero_at_base_note(self):
+        engine, mock_synth = _make_engine_with_mocks()
+        engine.set_voice(float(BASE_NOTE), 0.8, "flute")
+        mock_synth.pitch_bend.assert_called_with(CHAN, 0)
+
+    def test_pitch_change_uses_pitch_bend_not_noteoff_noteon(self):
+        """After voice is started, pitch changes must bend — never retrigger."""
+        engine, mock_synth = _make_engine_with_mocks()
+        engine.set_voice(float(BASE_NOTE), 0.8, "flute")
+        mock_synth.reset_mock()
+
+        engine.set_voice(float(BASE_NOTE + 2), 0.8, "flute")
+
+        mock_synth.noteoff.assert_not_called()
+        mock_synth.noteon.assert_not_called()
+        mock_synth.pitch_bend.assert_called_once()
+
+    def test_pitch_bend_value_is_proportional_to_semitone_offset(self):
+        """Full positive range → bend_val=+8192; full negative → -8192."""
+        engine, mock_synth = _make_engine_with_mocks()
+        engine.set_voice(float(BASE_NOTE), 0.8, "flute")  # start note
+        mock_synth.reset_mock()
+
+        # +PITCH_BEND_RANGE semitones from BASE_NOTE → full positive bend
+        engine.set_voice(float(BASE_NOTE + PITCH_BEND_RANGE), 0.8, "flute")
+        mock_synth.pitch_bend.assert_called_with(CHAN, 8192)
+
+        mock_synth.reset_mock()
+        # -PITCH_BEND_RANGE semitones from BASE_NOTE → full negative bend
+        engine.set_voice(float(BASE_NOTE - PITCH_BEND_RANGE), 0.8, "flute")
+        mock_synth.pitch_bend.assert_called_with(CHAN, -8192)
+
+    def test_pitch_beyond_range_is_clamped(self):
+        """Pitch outside ±PITCH_BEND_RANGE must clamp to max bend."""
+        engine, mock_synth = _make_engine_with_mocks()
+        engine.set_voice(float(BASE_NOTE), 0.8, "flute")
+        mock_synth.reset_mock()
+
+        engine.set_voice(float(BASE_NOTE + PITCH_BEND_RANGE + 10), 0.8, "flute")
+        mock_synth.pitch_bend.assert_called_with(CHAN, 8192)
+
+    def test_volume_updated_via_cc11(self):
+        engine, mock_synth = _make_engine_with_mocks()
+        engine.set_voice(float(BASE_NOTE), 0.5, "flute")
+        mock_synth.cc.assert_called_with(CHAN, 11, int(0.5 * 127))
+
+    def test_no_noteon_when_amplitude_is_zero(self):
+        """Amplitude 0 must not start the note (silence → silence)."""
+        engine, mock_synth = _make_engine_with_mocks()
+        engine.set_voice(float(BASE_NOTE), 0.0, "flute")
+        mock_synth.noteon.assert_not_called()
+
+    def test_instrument_change_reprogram_and_retrigger(self):
+        """Instrument switch must do noteoff → noteon reset even in set_voice path."""
+        engine, mock_synth = _make_engine_with_mocks("flute")
+        engine.set_voice(float(BASE_NOTE), 0.8, "flute")
+        mock_synth.reset_mock()
+
+        engine.set_voice(float(BASE_NOTE), 0.8, "violin")
+
+        mock_synth.program_select.assert_called()
+        mock_synth.noteoff.assert_called_with(CHAN, BASE_NOTE)
+        mock_synth.noteon.assert_called_with(CHAN, BASE_NOTE, 127)
+
+    def test_pitch_bend_range_rpn_set_on_init(self):
+        """Pitch bend sensitivity RPN must be set when preset is first applied."""
+        import utsuro_oto.sound_engine as se
+
+        engine, mock_synth = _make_engine_with_mocks()
+        # RPN sequence: CC101=0, CC100=0, CC6=range, CC38=0, CC101=127, CC100=127
+        cc_calls = [(c.args[1], c.args[2]) for c in mock_synth.cc.call_args_list]
+        assert (101, 0) in cc_calls, "RPN MSB select not sent"
+        assert (100, 0) in cc_calls, "RPN LSB select not sent"
+        assert (6, se.PITCH_BEND_RANGE) in cc_calls, "pitch bend range not set"
+
+    def test_stop_note_after_set_voice_sends_noteoff_base_note(self):
+        """stop_note must end the BASE_NOTE held by set_voice."""
+        engine, mock_synth = _make_engine_with_mocks()
+        engine.set_voice(float(BASE_NOTE + 5), 0.8, "flute")
+        engine.stop_note()
+        mock_synth.noteoff.assert_called_with(CHAN, BASE_NOTE)
+        assert engine._current_pitch is None
+
+    def test_set_voice_unavailable_without_fluidsynth(self):
+        """set_voice must be a no-op when FluidSynth is unavailable."""
+        probe_fail = FluidSynthProbeResult(False, "test: not available")
+        with patch("utsuro_oto.sound_engine.probe_fluidsynth", return_value=probe_fail):
+            engine = SoundEngine()
+        engine.set_voice(float(BASE_NOTE), 0.8, "flute")  # must not raise

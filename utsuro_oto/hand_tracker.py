@@ -14,6 +14,7 @@ Environment variables::
                                   default 0.5).  Lower values detect more in
                                   poor lighting at the cost of more false positives.
 """
+
 from __future__ import annotations
 
 import os
@@ -23,9 +24,9 @@ import mediapipe as mp
 import numpy as np
 
 # ── Environment-variable configuration ──────────────────────────────────────
-_FRAME_IS_RGB       = os.environ.get("UTSURO_OTO_FRAME_IS_RGB",       "0") == "1"
-_MODEL_COMPLEXITY   = int(os.environ.get("UTSURO_OTO_MODEL_COMPLEXITY", "0"))
-_MIN_DET_CONF       = float(os.environ.get("UTSURO_OTO_MIN_DET_CONF",   "0.5"))
+_FRAME_IS_RGB = os.environ.get("UTSURO_OTO_FRAME_IS_RGB", "0") == "1"
+_MODEL_COMPLEXITY = int(os.environ.get("UTSURO_OTO_MODEL_COMPLEXITY", "0"))
+_MIN_DET_CONF = float(os.environ.get("UTSURO_OTO_MIN_DET_CONF", "0.5"))
 
 mp_drawing = mp.solutions.drawing_utils
 mp_drawing_styles = mp.solutions.drawing_styles
@@ -49,7 +50,7 @@ class HandTracker:
         det_conf = _MIN_DET_CONF
         print(f"[Vision] HandTracker: complexity={complexity}, det_conf={det_conf}, frame_is_rgb={_FRAME_IS_RGB}")
         self.hands = mp_hands.Hands(
-            static_image_mode=False,   # video mode: tracking between frames (faster, more robust)
+            static_image_mode=False,  # video mode: tracking between frames (faster, more robust)
             max_num_hands=nb_hands,
             min_detection_confidence=det_conf,
             min_tracking_confidence=0.5,
@@ -78,27 +79,37 @@ class HandTracker:
 
         hand_positions = []
         for landmarks in results.multi_hand_landmarks:
-            palm_center = self._norm((
-                landmarks.landmark[mp_hands.HandLandmark.MIDDLE_FINGER_PIP].x,
-                landmarks.landmark[mp_hands.HandLandmark.MIDDLE_FINGER_PIP].y,
-            ))
-            index_tip = self._norm((
-                landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP].x,
-                landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP].y,
-            ))
-            index_mcp = self._norm((
-                landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_MCP].x,
-                landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_MCP].y,
-            ))
-            middle_tip = self._norm((
-                landmarks.landmark[mp_hands.HandLandmark.MIDDLE_FINGER_TIP].x,
-                landmarks.landmark[mp_hands.HandLandmark.MIDDLE_FINGER_TIP].y,
-            ))
-            hand_positions.append({
-                "palm": palm_center,
-                "index_tip": index_tip,
-                "index_mcp": index_mcp,
-                "middle": middle_tip,
-            })
+            palm_center = self._norm(
+                (
+                    landmarks.landmark[mp_hands.HandLandmark.MIDDLE_FINGER_PIP].x,
+                    landmarks.landmark[mp_hands.HandLandmark.MIDDLE_FINGER_PIP].y,
+                )
+            )
+            index_tip = self._norm(
+                (
+                    landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP].x,
+                    landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP].y,
+                )
+            )
+            index_mcp = self._norm(
+                (
+                    landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_MCP].x,
+                    landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_MCP].y,
+                )
+            )
+            middle_tip = self._norm(
+                (
+                    landmarks.landmark[mp_hands.HandLandmark.MIDDLE_FINGER_TIP].x,
+                    landmarks.landmark[mp_hands.HandLandmark.MIDDLE_FINGER_TIP].y,
+                )
+            )
+            hand_positions.append(
+                {
+                    "palm": palm_center,
+                    "index_tip": index_tip,
+                    "index_mcp": index_mcp,
+                    "middle": middle_tip,
+                }
+            )
 
         return hand_positions

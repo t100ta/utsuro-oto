@@ -6,6 +6,7 @@ from utsuro_oto.config import DEFAULT_ACTIVE_INSTRUMENTS
 
 # ── Scale getters/setters ─────────────────────────────────────────────
 
+
 class TestScale:
     def test_default_scale_is_pentatonic_major(self, fresh_config):
         assert fresh_config.get_scale() == "pentatonic_major"
@@ -28,6 +29,7 @@ class TestScale:
 
 
 # ── Instrument index getters/setters ──────────────────────────────────
+
 
 class TestInstrumentIdx:
     def test_default_instrument(self, fresh_config):
@@ -54,6 +56,7 @@ class TestInstrumentIdx:
 
 
 # ── Active instrument list ────────────────────────────────────────────
+
 
 class TestActiveInstruments:
     def test_default_active_instruments(self, fresh_config):
@@ -92,6 +95,7 @@ class TestActiveInstruments:
 
 
 # ── Persistence round-trip ────────────────────────────────────────────
+
 
 class TestPersistenceRoundTrip:
     def test_settings_survive_reload(self, fresh_config):
