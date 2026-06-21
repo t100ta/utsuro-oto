@@ -25,9 +25,12 @@ body {
 }
 
 .app-icon {
-	font-size: 4rem;
-	margin-bottom: 1rem;
-	display: inline-block;
+	display: block;
+	max-width: 420px;
+	width: 80%;
+	height: auto;
+	margin: 0 auto 1.5rem;
+	border-radius: 8px;
 }
 
 .hero h1 {

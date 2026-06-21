@@ -11,7 +11,11 @@ tags:
  - reachy_mini_python_app
 ---
 
-# UtsuroOto（空ろ音）
+<p align="center">
+  <img src="assets/logo.png" alt="UtsuroOto（虚空音）" width="420">
+</p>
+
+# UtsuroOto（虚空音）
 
 **Play [Reachy Mini](https://www.pollen-robotics.com/reachy-mini/) like a theremin using hand tracking.**
 
