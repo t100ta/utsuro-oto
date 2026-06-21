@@ -5,7 +5,7 @@ colorFrom: red
 colorTo: blue
 sdk: static
 pinned: false
-short_description: Play Reachy Mini like a theremin — hand position controls pitch and volume via camera tracking
+short_description: Play Reachy Mini like a theremin with hand tracking
 tags:
  - reachy_mini
  - reachy_mini_python_app
