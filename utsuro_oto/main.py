@@ -18,12 +18,11 @@ from __future__ import annotations
 
 import threading
 import time
+from pathlib import Path
 from typing import Any
 
 import cv2
 import numpy as np
-from pathlib import Path
-
 from fastapi import Request
 from fastapi.responses import FileResponse, HTMLResponse, StreamingResponse
 from reachy_mini import ReachyMini, ReachyMiniApp

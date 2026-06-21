@@ -104,9 +104,20 @@
 			<h2>Install on Your Reachy Mini</h2>
 			<p>UtsuroOto runs as a <code>reachy_mini_apps</code> plugin on the robot — not in the browser. Install it once and launch it any time from the Reachy Mini dashboard.</p>
 
+			<!-- Primary: one-click from the dashboard -->
 			<div class="manual-option">
-				<h3>📦 Install via pip</h3>
-				<p>Run the following command on your Reachy Mini (or in your development environment):</p>
+				<h3>🤖 One-click install (recommended)</h3>
+				<p>
+					Open the <strong>Reachy Mini dashboard</strong>, go to <em>Community Apps</em>,
+					search for <strong>UtsuroOto</strong>, and click <strong>Install</strong>.<br />
+					The robot fetches and installs the package automatically — no terminal needed.
+				</p>
+			</div>
+
+			<!-- Secondary: manual via pip for offline / dev use -->
+			<div class="manual-option" style="margin-top:1rem">
+				<h3>📦 Manual install (offline / development)</h3>
+				<p>If the robot has no internet access, or you want to install a local build:</p>
 				<div class="manual-install">
 					<code>pip install git+https://github.com/t100ta/utsuro-oto.git</code>
 					<button class="copy-btn"
